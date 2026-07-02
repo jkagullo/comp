@@ -1,8 +1,7 @@
-const BYTES_PER_MB = 1024 * 1024
+export { bytesToMB, clamp } from '@shared/format'
+import { bytesToMB } from '@shared/format'
 
-export function bytesToMB(bytes: number): number {
-  return bytes / BYTES_PER_MB
-}
+const BYTES_PER_MB = 1024 * 1024
 
 export function formatMB(bytes: number, fractionDigits = 1): string {
   return `${bytesToMB(bytes).toFixed(fractionDigits)} MB`
@@ -40,10 +39,6 @@ export function formatEta(seconds: number): string {
 export function basenameWithoutExtension(fileName: string): string {
   const lastDot = fileName.lastIndexOf('.')
   return lastDot > 0 ? fileName.slice(0, lastDot) : fileName
-}
-
-export function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value))
 }
 
 /** Joins a folder and file name using whichever path separator the folder already uses. */

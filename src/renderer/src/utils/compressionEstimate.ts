@@ -1,14 +1,4 @@
-import type { CompressionMode } from '../types'
-import { bytesToMB, clamp } from './format'
-
-/** Projected output size in MB for the current mode, before compression actually runs. */
-export function estimateTargetMB(sourceSizeBytes: number, mode: CompressionMode): number {
-  const fromMB = bytesToMB(sourceSizeBytes)
-  if (mode.kind === 'percentage') {
-    return fromMB * (1 - mode.percent / 100)
-  }
-  return clamp(mode.targetMB, 0.1, fromMB)
-}
+import { clamp } from './format'
 
 export function reductionPercent(fromMB: number, toMB: number): number {
   if (fromMB <= 0) return 0

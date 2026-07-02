@@ -13,9 +13,9 @@ export interface LoadedVideo {
   readonly thumbnailDataUrl: string | null
 }
 
-export type CompressionMode =
-  | { readonly kind: 'percentage'; readonly percent: number }
-  | { readonly kind: 'targetSize'; readonly targetMB: number }
+import type { CompressionMode } from '@shared/compression'
+
+export type { CompressionMode }
 
 export interface OutputSettings {
   readonly folder: string

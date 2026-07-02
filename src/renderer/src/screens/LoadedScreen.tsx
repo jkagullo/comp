@@ -8,7 +8,8 @@ import {
   formatFileSize,
   formatResolution
 } from '../utils/format'
-import { estimateTargetMB, reductionPercent } from '../utils/compressionEstimate'
+import { estimateTargetMB, isPercentValid, isTargetSizeValid } from '@shared/compression'
+import { reductionPercent } from '../utils/compressionEstimate'
 import type { CompressionMode, LoadedVideo, OutputSettings } from '../types'
 
 interface LoadedScreenProps {
@@ -43,6 +44,19 @@ export function LoadedScreen({
   const fromMB = bytesToMB(video.sizeBytes)
   const toMB = estimateTargetMB(video.sizeBytes, mode)
   const reduction = reductionPercent(fromMB, toMB)
+
+  const isValid =
+    modeKind === 'percentage'
+      ? isPercentValid(percent)
+      : isTargetSizeValid(targetMB, video.sizeBytes)
+
+  const errorMessage = isValid
+    ? null
+    : modeKind === 'percentage'
+      ? 'Percentage must be between 1% and 99%.'
+      : targetMB >= fromMB
+        ? `Target size must be less than the original file size (${fromMB.toFixed(1)} MB).`
+        : 'Enter a target size greater than 0 MB.'
 
   const handleChooseFolder = async (): Promise<void> => {
     const folder = await window.comp.pickOutputFolder()
@@ -104,31 +118,39 @@ export function LoadedScreen({
         </div>
 
         {modeKind === 'percentage' ? (
-          <div className="flex items-center gap-3">
-            <input
-              type="range"
-              min={1}
-              max={99}
-              value={percent}
-              onChange={(event) => setPercent(Number(event.target.value))}
-              className="h-1.5 flex-1 accent-[var(--accent)]"
-            />
-            <span className="w-10 shrink-0 text-right text-[13px] font-medium text-primary tabular-nums">
-              {percent}%
-            </span>
-          </div>
+          <>
+            <div className="flex items-center gap-3">
+              <input
+                type="range"
+                min={1}
+                max={99}
+                value={percent}
+                onChange={(event) => setPercent(Number(event.target.value))}
+                className="h-1.5 flex-1 accent-[var(--accent)]"
+              />
+              <span className="w-10 shrink-0 text-right text-[13px] font-medium text-primary tabular-nums">
+                {percent}%
+              </span>
+            </div>
+            {errorMessage && <p className="text-[12px] text-error">{errorMessage}</p>}
+          </>
         ) : (
-          <div className="flex items-center gap-2">
-            <input
-              type="number"
-              min={1}
-              max={Math.max(1, Math.floor(fromMB))}
-              value={targetMB}
-              onChange={(event) => setTargetMB(Number(event.target.value))}
-              className="w-24 rounded-lg border border-border bg-panel px-2.5 py-1.5 text-[13px] text-primary outline-none focus:border-accent"
-            />
-            <span className="text-[13px] text-secondary">MB</span>
-          </div>
+          <>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min={1}
+                max={Math.max(1, Math.floor(fromMB))}
+                value={targetMB}
+                onChange={(event) => setTargetMB(Number(event.target.value))}
+                className={`w-24 rounded-lg border bg-panel px-2.5 py-1.5 text-[13px] text-primary outline-none focus:border-accent ${
+                  isValid ? 'border-border' : 'border-error'
+                }`}
+              />
+              <span className="text-[13px] text-secondary">MB</span>
+            </div>
+            {errorMessage && <p className="text-[12px] text-error">{errorMessage}</p>}
+          </>
         )}
 
         <div className="flex items-center gap-2 rounded-lg bg-hover px-3 py-2">
@@ -168,6 +190,7 @@ export function LoadedScreen({
       <Button
         variant="primary"
         className="mt-auto w-full py-2.5"
+        disabled={!isValid}
         onClick={() => onStartCompress(mode, { folder: outputFolder, fileName })}
       >
         Compress
