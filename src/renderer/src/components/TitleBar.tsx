@@ -29,7 +29,7 @@ export function TitleBar({ theme, onToggleTheme }: TitleBarProps): React.JSX.Ele
           type="button"
           aria-label="Minimize"
           onClick={() => window.comp.minimizeWindow()}
-          className="flex h-full w-11 items-center justify-center text-secondary transition-colors hover:bg-hover"
+          className="flex h-full w-11 cursor-pointer items-center justify-center text-secondary transition-colors hover:bg-hover"
         >
           <Minus className="h-4 w-4" strokeWidth={1.75} />
         </button>
@@ -37,7 +37,7 @@ export function TitleBar({ theme, onToggleTheme }: TitleBarProps): React.JSX.Ele
           type="button"
           aria-label={isMaximized ? 'Restore' : 'Maximize'}
           onClick={() => window.comp.toggleMaximizeWindow()}
-          className="flex h-full w-11 items-center justify-center text-secondary transition-colors hover:bg-hover"
+          className="flex h-full w-11 cursor-pointer items-center justify-center text-secondary transition-colors hover:bg-hover"
         >
           {isMaximized ? (
             <Copy className="h-3.5 w-3.5 -scale-x-100" strokeWidth={1.75} />
@@ -49,7 +49,7 @@ export function TitleBar({ theme, onToggleTheme }: TitleBarProps): React.JSX.Ele
           type="button"
           aria-label="Close"
           onClick={() => window.comp.closeWindow()}
-          className="flex h-full w-11 items-center justify-center text-secondary transition-colors hover:bg-error hover:text-accent-fg"
+          className="flex h-full w-11 cursor-pointer items-center justify-center text-secondary transition-colors hover:bg-error hover:text-accent-fg"
         >
           <X className="h-4 w-4" strokeWidth={1.75} />
         </button>

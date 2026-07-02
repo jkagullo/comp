@@ -80,7 +80,7 @@ export function EmptyScreen({
   )
 
   return (
-    <div className="absolute inset-5">
+    <div className="absolute inset-5 animate-[fade-in_200ms_ease-out]">
       <div
         onDragOver={(event) => {
           event.preventDefault()

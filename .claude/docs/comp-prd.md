@@ -1,4 +1,5 @@
 # Product Requirements Document (PRD)
+
 ## comp
 
 **App Name:** comp
@@ -12,6 +13,7 @@
 ## 1. Overview
 
 A simple, minimalist Windows desktop application that lets a user compress a video file either:
+
 - By **percentage** (e.g., "reduce to 50% of original size"), or
 - By **exact target size** (e.g., "compress this 100MB video down to 10MB")
 
@@ -46,16 +48,17 @@ You / early users who want a **no-frills** tool to shrink a video to a specific 
 
 ## 5. Tech Stack & Architecture
 
-| Layer | Choice | Why |
-|---|---|---|
-| Desktop shell | **Electron** | Lets you write the whole app in TypeScript/JS, easiest path since you already know React/RN concepts. Packages into a Windows `.exe`. |
-| UI | **React + TypeScript** | Familiar to you as an RN/Next.js developer — component model transfers directly. |
-| Styling | **Tailwind CSS** (or CSS Modules) | Fast to build a minimalist UI. |
-| Compression engine | **FFmpeg** (via `ffmpeg-static` npm package, bundled into the app) | Industry standard, free, handles every format you listed, and supports precise bitrate targeting. |
-| IPC | Electron's built-in `ipcMain` / `ipcRenderer` (or `contextBridge` + `preload.ts`) | Needed because the actual compression runs in Electron's Node.js "main process," not the browser-like "renderer" UI. |
-| Packaging | **electron-builder** | Produces a signed/unsigned Windows installer (.exe / NSIS). |
+| Layer              | Choice                                                                            | Why                                                                                                                                   |
+| ------------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Desktop shell      | **Electron**                                                                      | Lets you write the whole app in TypeScript/JS, easiest path since you already know React/RN concepts. Packages into a Windows `.exe`. |
+| UI                 | **React + TypeScript**                                                            | Familiar to you as an RN/Next.js developer — component model transfers directly.                                                      |
+| Styling            | **Tailwind CSS** (or CSS Modules)                                                 | Fast to build a minimalist UI.                                                                                                        |
+| Compression engine | **FFmpeg** (via `ffmpeg-static` npm package, bundled into the app)                | Industry standard, free, handles every format you listed, and supports precise bitrate targeting.                                     |
+| IPC                | Electron's built-in `ipcMain` / `ipcRenderer` (or `contextBridge` + `preload.ts`) | Needed because the actual compression runs in Electron's Node.js "main process," not the browser-like "renderer" UI.                  |
+| Packaging          | **electron-builder**                                                              | Produces a signed/unsigned Windows installer (.exe / NSIS).                                                                           |
 
 **High-level architecture:**
+
 ```
 Renderer Process (React + TS UI)
    |  (user picks file, target size, output folder)
@@ -93,21 +96,25 @@ This means every compression job — whether started by % or by MB — is normal
 ## 7. Functional Requirements
 
 ### 7.1 Input
+
 - User selects a video file via a file picker or drag-and-drop.
 - Supported formats: MP4, MOV, MKV, AVI, WEBM, WMV, FLV (anything FFmpeg supports can be added later).
 - App displays: filename, current size (MB), duration, resolution.
 
 ### 7.2 Compression Settings
+
 - Toggle between two modes:
   - **By Percentage** — slider or input (1–99%) of original file size.
   - **By Target Size** — numeric input in MB (validated: must be less than original size).
 - Live preview text: "Compressing 100MB → 10MB (~90% reduction)."
 
 ### 7.3 Output
+
 - "Choose folder" button (native Windows folder picker) — defaults to same folder as source or Downloads.
 - Output filename auto-generated (e.g., `myvideo_compressed.mp4`), editable by user.
 
 ### 7.4 Compression Process
+
 - "Compress" button starts the job.
 - Progress bar with percentage and estimated time remaining (parsed from FFmpeg's progress output).
 - Cancel button to abort an in-progress job (kills the FFmpeg child process cleanly).
@@ -115,6 +122,7 @@ This means every compression job — whether started by % or by MB — is normal
 - On failure (corrupt file, unsupported codec, disk full, etc.): clear, plain-language error message.
 
 ### 7.5 Simple Settings (kept minimal, optional for v1)
+
 - Output format dropdown (default: keep as MP4, since it's the most compatible).
 - That's it — no codec/resolution/frame-rate controls in v1 to keep the UI minimalist, per your requirement.
 
@@ -186,4 +194,4 @@ You do **not** need Rust, Visual Studio (the full IDE, not VS Code), or any C++ 
 
 ---
 
-*End of PRD.*
+_End of PRD._

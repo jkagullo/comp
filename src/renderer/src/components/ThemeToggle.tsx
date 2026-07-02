@@ -17,7 +17,7 @@ export function ThemeToggle({ theme, onToggle }: ThemeToggleProps): React.JSX.El
       aria-checked={isDark}
       aria-label="Toggle theme"
       onClick={onToggle}
-      className="titlebar-no-drag relative flex h-6 w-11 shrink-0 items-center rounded-full border border-border bg-hover px-0.5 transition-colors"
+      className="titlebar-no-drag relative flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border border-border bg-hover px-0.5 transition-colors"
     >
       <span
         className={`flex h-5 w-5 items-center justify-center rounded-full bg-panel shadow-sm transition-transform duration-200 ${

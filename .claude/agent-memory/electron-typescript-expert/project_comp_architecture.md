@@ -10,6 +10,7 @@ metadata:
 **Why these choices:** electron-vite was picked over raw webpack/electron-forge for fast HMR and a standard main/preload/renderer split out of the box. Tailwind v4 (`@tailwindcss/vite` plugin, CSS-first `@theme inline` config) was used instead of v3 for simpler config.
 
 **Key structure:**
+
 - `src/shared/ipcTypes.ts` — single source of truth for IPC channel names (`IPC_CHANNELS`) and payload types, imported by both `src/main` and `src/preload`/renderer via the `@shared/*` path alias (renderer) or relative import (main/preload).
 - `src/preload/index.ts` exposes one namespaced API: `window.comp.*` (minimizeWindow, toggleMaximizeWindow, closeWindow, isWindowMaximized, onWindowMaximizedChange, pickVideoFile, pickOutputFolder, getDefaultOutputFolder, showItemInFolder, getPathForFile, pathToFileUrl). No generic `electronAPI`/`ipcRenderer` passthrough is exposed — every renderer-reachable call is a named, typed method.
 - Renderer state machine lives in `src/renderer/src/App.tsx` driving a `Screen` discriminated union (`empty | loaded | progress | done | error`) defined in `src/renderer/src/types.ts`.

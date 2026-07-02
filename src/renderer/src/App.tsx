@@ -5,8 +5,10 @@ import { LoadedScreen } from './screens/LoadedScreen'
 import { ProgressScreen } from './screens/ProgressScreen'
 import { DoneScreen } from './screens/DoneScreen'
 import { ErrorScreen } from './screens/ErrorScreen'
+import { OnboardingScreen } from './screens/OnboardingScreen'
 import { useTheme } from './hooks/useTheme'
 import { useCompressionRun } from './hooks/useCompressionRun'
+import { useHasSeenOnboarding } from './hooks/useHasSeenOnboarding'
 import { bytesToMB, joinPath } from './utils/format'
 import { estimateTargetMB, jitterAchievedMB } from './utils/compressionEstimate'
 import type { CompressionMode, LoadedVideo, OutputSettings, Screen } from './types'
@@ -15,10 +17,30 @@ const SUPPORTED_EXTENSIONS_LABEL = 'MP4, MOV, MKV, AVI, WEBM, WMV, or FLV'
 
 function App(): React.JSX.Element {
   const { theme, toggleTheme } = useTheme()
-  const [screen, setScreen] = useState<Screen>({ kind: 'empty' })
+  const { hasSeenOnboarding, markOnboardingComplete } = useHasSeenOnboarding()
+  const [screen, setScreen] = useState<Screen>(
+    hasSeenOnboarding ? { kind: 'empty' } : { kind: 'onboarding', step: 0 }
+  )
   const compressionRun = useCompressionRun()
 
   const resetToEmpty = useCallback(() => setScreen({ kind: 'empty' }), [])
+
+  const handleOnboardingBack = useCallback(() => {
+    setScreen((prev) =>
+      prev.kind === 'onboarding' ? { kind: 'onboarding', step: prev.step - 1 } : prev
+    )
+  }, [])
+
+  const handleOnboardingNext = useCallback(() => {
+    setScreen((prev) =>
+      prev.kind === 'onboarding' ? { kind: 'onboarding', step: prev.step + 1 } : prev
+    )
+  }, [])
+
+  const handleOnboardingComplete = useCallback(() => {
+    markOnboardingComplete()
+    setScreen({ kind: 'empty' })
+  }, [markOnboardingComplete])
 
   const handleVideoLoaded = useCallback((video: LoadedVideo) => {
     setScreen({ kind: 'loaded', video })
@@ -69,6 +91,16 @@ function App(): React.JSX.Element {
       <TitleBar theme={theme} onToggleTheme={toggleTheme} />
 
       <main className="relative flex-1 overflow-hidden">
+        {screen.kind === 'onboarding' && (
+          <OnboardingScreen
+            step={screen.step}
+            onBack={handleOnboardingBack}
+            onNext={handleOnboardingNext}
+            onSkip={handleOnboardingComplete}
+            onFinish={handleOnboardingComplete}
+          />
+        )}
+
         {screen.kind === 'empty' && (
           <EmptyScreen
             onVideoLoaded={handleVideoLoaded}

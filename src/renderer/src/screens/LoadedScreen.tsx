@@ -86,7 +86,7 @@ export function LoadedScreen({
           <button
             type="button"
             onClick={() => setModeKind('percentage')}
-            className={`rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors ${
+            className={`cursor-pointer rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors ${
               modeKind === 'percentage' ? 'bg-panel text-primary shadow-sm' : 'text-secondary'
             }`}
           >
@@ -95,7 +95,7 @@ export function LoadedScreen({
           <button
             type="button"
             onClick={() => setModeKind('targetSize')}
-            className={`rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors ${
+            className={`cursor-pointer rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors ${
               modeKind === 'targetSize' ? 'bg-panel text-primary shadow-sm' : 'text-secondary'
             }`}
           >
@@ -150,7 +150,7 @@ export function LoadedScreen({
           onClick={() => {
             void handleChooseFolder()
           }}
-          className="flex items-center gap-2 rounded-lg border border-border bg-panel px-3 py-2 text-left transition-colors hover:bg-hover"
+          className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-panel px-3 py-2 text-left transition-colors hover:bg-hover"
         >
           <Folder className="h-4 w-4 shrink-0 text-tertiary" strokeWidth={1.75} />
           <span className="min-w-0 flex-1 truncate text-[13px] text-secondary">{outputFolder}</span>

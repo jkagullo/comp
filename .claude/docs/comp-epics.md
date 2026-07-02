@@ -1,4 +1,5 @@
 # EPICS
+
 ## comp
 
 **App Name:** comp
@@ -14,6 +15,7 @@ Stack: Electron + TypeScript + React
 **Related PRD sections:** 5 (Tech Stack & Architecture), 10 (Dev Environment), Milestones 1–2
 
 ### Stories
+
 - **1.1 Project scaffold:** Scaffold an Electron + React + TypeScript project (`npm create electron-vite@latest`), with proper `main.ts` / `preload.ts` (contextBridge) / renderer separation so the UI never directly touches Node.js/filesystem APIs. Tailwind (or CSS Modules) configured. `electron-builder` installed as a dev dependency.
   - Acceptance: `npm run dev` launches a blank window on Windows; renderer can only reach Node/file APIs through `contextBridge`-exposed functions; a styled test component renders.
 - **1.2 FFmpeg bundling:** Install and wire up `ffmpeg-static` + `ffprobe-static` in the main process.
@@ -21,7 +23,7 @@ Stack: Electron + TypeScript + React
 - **1.3 Video metadata extraction:** Use `ffprobe` to read a video's duration, resolution, and file size.
   - Acceptance: given a sample file, returns `{ duration, width, height, sizeBytes }` correctly.
 - **1.4 Basic compression proof-of-concept:** Run a single-pass FFmpeg command end-to-end (input path → smaller output path) to confirm the pipeline works before adding target-size logic.
-  - Acceptance: a test video is compressed and written to disk successfully, including once inside a *packaged* (non-dev) build — bundled binaries can behave differently once built, so this needs to be confirmed early, not just in `npm run dev`.
+  - Acceptance: a test video is compressed and written to disk successfully, including once inside a _packaged_ (non-dev) build — bundled binaries can behave differently once built, so this needs to be confirmed early, not just in `npm run dev`.
 
 ---
 
@@ -32,6 +34,7 @@ Stack: Electron + TypeScript + React
 **Related PRD sections:** 6 (Target Size Logic), 7 (Functional Requirements), Milestones 3–6
 
 ### Stories
+
 - **2.1 File input:** Select a video via native file picker or drag-and-drop (MP4, MOV, MKV, AVI, WEBM, WMV, FLV). Display filename, size, duration, resolution once loaded. Show a clear error for corrupted/unsupported files.
   - Acceptance: both selection methods produce the same state; unsupported formats and unreadable files show plain-language errors instead of a broken UI.
 - **2.2 Compression settings:** Toggle between "by Percentage" (1–99%) and "by Target Size" (MB), with inline validation (target must be less than original size) and a live preview (e.g., "100MB → 10MB (~90% reduction)"). Internally, percentage mode is always converted to an equivalent target-size-in-MB so the rest of the pipeline only handles one case.
@@ -52,6 +55,7 @@ Stack: Electron + TypeScript + React
 **Related PRD sections:** 8 (UI/UX Requirements), 9 (Non-Functional Requirements), Milestones 7–8
 
 ### Stories
+
 - **3.1 UI polish:** Apply a consistent minimalist visual style (neutral palette + single accent color, clean sans-serif like Inter, generous white space, one obvious primary action per screen) across all states: empty, file-loaded, progress, done, and error. Optionally follow OS light/dark theme.
   - Acceptance: all five states are visually consistent and each has a single clear call-to-action; no contrast issues in either theme if dark mode is implemented.
 - **3.2 Windows packaging:** Build a distributable installer (.exe via NSIS) using `electron-builder`, with proper app name/icon/version metadata, and confirm FFmpeg/FFprobe work correctly in the packaged build on a machine with no FFmpeg installed system-wide.
@@ -61,7 +65,7 @@ Stack: Electron + TypeScript + React
 
 ## Suggested Build Order
 
-1. **Epic 1** — Foundation, FFmpeg & Video Metadata *(highest risk/newest territory — do this first)*
+1. **Epic 1** — Foundation, FFmpeg & Video Metadata _(highest risk/newest territory — do this first)_
 2. **Epic 2** — Core Compression Flow
 3. **Epic 3** — Minimalist UI & Packaging
 
@@ -76,4 +80,4 @@ Stack: Electron + TypeScript + React
 
 ---
 
-*End of EPICS.*
+_End of EPICS._

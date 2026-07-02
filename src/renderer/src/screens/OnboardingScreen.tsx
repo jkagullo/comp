@@ -1,5 +1,6 @@
-import { Film, FolderOpen, FolderOutput, Percent, Target, Globe, Github } from 'lucide-react'
+import { Film, FolderOpen, FolderOutput, Percent, Target, Globe, Code2, Heart } from 'lucide-react'
 import { Button } from '../components/Button'
+import { useFadeTransition } from '../hooks/useFadeTransition'
 import type { ExternalLinkKey } from '@shared/ipcTypes'
 
 interface OnboardingScreenProps {
@@ -57,10 +58,7 @@ const STEPS: readonly OnboardingStepContent[] = [
     description: 'Compress by percentage, or target an exact file size.',
     body: (
       <div className="flex items-center gap-3">
-        <ModeChip
-          icon={<Percent className="h-4 w-4" strokeWidth={1.75} />}
-          label="Percentage"
-        />
+        <ModeChip icon={<Percent className="h-4 w-4" strokeWidth={1.75} />} label="Percentage" />
         <ModeChip icon={<Target className="h-4 w-4" strokeWidth={1.75} />} label="Target size" />
       </div>
     )
@@ -68,9 +66,12 @@ const STEPS: readonly OnboardingStepContent[] = [
   {
     title: 'Output & compress',
     description: 'Pick an output folder and filename, then compress.',
-    body: (
-      <IconTile icon={<FolderOutput className="h-6 w-6 text-tertiary" strokeWidth={1.75} />} />
-    )
+    body: <IconTile icon={<FolderOutput className="h-6 w-6 text-tertiary" strokeWidth={1.75} />} />
+  },
+  {
+    title: 'Thank you for using comp',
+    description: 'Built by jkd. If you’d like to see more of my work or say hi, find me here.',
+    body: <IconTile icon={<Heart className="h-6 w-6 text-tertiary" strokeWidth={1.75} />} />
   }
 ]
 
@@ -93,47 +94,50 @@ export function OnboardingScreen({
   onSkip,
   onFinish
 }: OnboardingScreenProps): React.JSX.Element {
-  const isLastStep = step === LAST_STEP_INDEX
-  const content = STEPS[step]
+  const { displayedValue: displayedStep, isVisible } = useFadeTransition(step)
+  const isLastStep = displayedStep === LAST_STEP_INDEX
+  const content = STEPS[displayedStep]
 
   return (
-    <div className="absolute inset-5">
+    <div className="absolute inset-5 animate-[fade-in_200ms_ease-out]">
       <div className="flex h-full w-full flex-col items-center justify-center gap-6 rounded-[14px] border-2 border-dashed border-border">
-        {content.body}
+        <div
+          className={`flex flex-col items-center gap-6 transition-opacity duration-150 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+        >
+          {content.body}
 
-        <div className="flex max-w-md flex-col items-center gap-1 px-6 text-center">
-          <p className="text-[17px] font-semibold text-primary">{content.title}</p>
-          <p className="text-[13px] text-secondary">{content.description}</p>
-        </div>
-
-        {isLastStep && (
-          <div className="flex flex-col items-center gap-2">
-            <Button
-              variant="secondary"
-              onClick={() => openExternalLink('portfolio')}
-              className="w-44"
-            >
-              <Globe className="h-4 w-4" strokeWidth={1.75} />
-              Portfolio
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => openExternalLink('github')}
-              className="w-44"
-            >
-              <Github className="h-4 w-4" strokeWidth={1.75} />
-              GitHub
-            </Button>
+          <div className="flex max-w-md flex-col items-center gap-1 px-6 text-center">
+            <p className="text-[17px] font-semibold text-primary">{content.title}</p>
+            <p className="text-[13px] text-secondary">{content.description}</p>
           </div>
-        )}
+
+          {isLastStep && (
+            <div className="flex flex-col items-center gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => openExternalLink('portfolio')}
+                className="w-44"
+              >
+                <Globe className="h-4 w-4" strokeWidth={1.75} />
+                Portfolio
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => openExternalLink('github')}
+                className="w-44"
+              >
+                <Code2 className="h-4 w-4" strokeWidth={1.75} />
+                GitHub
+              </Button>
+            </div>
+          )}
+        </div>
 
         <div className="flex items-center gap-1.5">
           {STEPS.map((_, index) => (
             <div
               key={index}
-              className={`h-1.5 w-1.5 rounded-full ${
-                index === step ? 'bg-accent' : 'bg-border'
-              }`}
+              className={`h-1.5 w-1.5 rounded-full ${index === step ? 'bg-accent' : 'bg-border'}`}
             />
           ))}
         </div>
