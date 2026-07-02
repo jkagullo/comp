@@ -1,6 +1,12 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { pathToFileURL } from 'url'
-import { IPC_CHANNELS, PickVideoFileResult, ExternalLinkKey } from '../shared/ipcTypes'
+import {
+  IPC_CHANNELS,
+  PickVideoFileResult,
+  VideoMetadataResult,
+  CompressionResult,
+  ExternalLinkKey
+} from '../shared/ipcTypes'
 
 /**
  * The only surface the renderer can reach. Every member is either a thin,
@@ -39,6 +45,10 @@ const compApi = {
   },
 
   getFfmpegVersion: (): Promise<string> => ipcRenderer.invoke(IPC_CHANNELS.ffmpegGetVersion),
+  getVideoMetadata: (filePath: string): Promise<VideoMetadataResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.videoGetMetadata, filePath),
+  runSinglePassCompression: (filePath: string): Promise<CompressionResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.compressionRunSinglePass, filePath),
 
   /** Resolves the absolute filesystem path for a File the renderer received via drag-and-drop. */
   getPathForFile: (file: File): string => webUtils.getPathForFile(file),

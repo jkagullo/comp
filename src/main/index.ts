@@ -1,5 +1,5 @@
 import { app, shell, BrowserWindow, ipcMain, dialog, IpcMainInvokeEvent } from 'electron'
-import { join, extname } from 'path'
+import { join, extname, dirname, parse } from 'path'
 import { stat } from 'fs/promises'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import {
@@ -7,10 +7,14 @@ import {
   SUPPORTED_VIDEO_EXTENSIONS,
   SupportedVideoExtension,
   PickVideoFileResult,
+  VideoMetadataResult,
+  CompressionResult,
   EXTERNAL_LINKS
 } from '../shared/ipcTypes'
 import icon from '../../resources/icon.png?asset'
 import { getFfmpegVersion } from './ffmpeg'
+import { getVideoMetadata } from './metadata'
+import { runSinglePassCompression } from './compress'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -146,6 +150,36 @@ function registerIpcHandlers(): void {
   })
 
   ipcMain.handle(IPC_CHANNELS.ffmpegGetVersion, () => getFfmpegVersion())
+
+  ipcMain.handle(
+    IPC_CHANNELS.videoGetMetadata,
+    (_event, filePath: unknown): Promise<VideoMetadataResult> => {
+      // Renderer input crossing the IPC boundary is untrusted: validate the shape before touching the filesystem.
+      if (typeof filePath !== 'string' || filePath.length === 0) {
+        return Promise.resolve({
+          kind: 'error',
+          error: { code: 'stat-failed', message: 'No file path was provided.' }
+        })
+      }
+      return getVideoMetadata(filePath)
+    }
+  )
+
+  ipcMain.handle(
+    IPC_CHANNELS.compressionRunSinglePass,
+    (_event, filePath: unknown): Promise<CompressionResult> => {
+      // Renderer input crossing the IPC boundary is untrusted: validate the shape before touching the filesystem.
+      if (typeof filePath !== 'string' || filePath.length === 0) {
+        return Promise.resolve({
+          kind: 'error',
+          error: { code: 'input-stat-failed', message: 'No file path was provided.' }
+        })
+      }
+      const { name, ext } = parse(filePath)
+      const outputPath = join(dirname(filePath), `${name}_compressed${ext}`)
+      return runSinglePassCompression(filePath, outputPath)
+    }
+  )
 }
 
 app.whenReady().then(() => {
