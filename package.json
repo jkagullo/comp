@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A desktop video compressor app",
   "main": "./out/main/index.js",
-  "author": "jkyle",
+  "author": "jkd",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",
