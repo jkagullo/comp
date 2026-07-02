@@ -10,6 +10,7 @@ import {
   EXTERNAL_LINKS
 } from '../shared/ipcTypes'
 import icon from '../../resources/icon.png?asset'
+import { getFfmpegVersion } from './ffmpeg'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -143,6 +144,8 @@ function registerIpcHandlers(): void {
     if (key !== 'portfolio' && key !== 'github') return
     shell.openExternal(EXTERNAL_LINKS[key])
   })
+
+  ipcMain.handle(IPC_CHANNELS.ffmpegGetVersion, () => getFfmpegVersion())
 }
 
 app.whenReady().then(() => {

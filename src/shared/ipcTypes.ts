@@ -30,7 +30,8 @@ export const IPC_CHANNELS = {
   dialogPickFolder: 'dialog:pick-folder',
   pathGetDefaultOutputFolder: 'path:get-default-output-folder',
   shellShowItemInFolder: 'shell:show-item-in-folder',
-  shellOpenExternalLink: 'shell:open-external-link'
+  shellOpenExternalLink: 'shell:open-external-link',
+  ffmpegGetVersion: 'ffmpeg:get-version'
 } as const
 
 /**

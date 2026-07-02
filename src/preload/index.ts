@@ -38,6 +38,8 @@ const compApi = {
     ipcRenderer.send(IPC_CHANNELS.shellOpenExternalLink, key)
   },
 
+  getFfmpegVersion: (): Promise<string> => ipcRenderer.invoke(IPC_CHANNELS.ffmpegGetVersion),
+
   /** Resolves the absolute filesystem path for a File the renderer received via drag-and-drop. */
   getPathForFile: (file: File): string => webUtils.getPathForFile(file),
   /** Pure string transform (no I/O) so a local path can be used as a <video>/<img> src. */
