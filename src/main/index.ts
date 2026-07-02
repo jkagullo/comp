@@ -6,7 +6,8 @@ import {
   IPC_CHANNELS,
   SUPPORTED_VIDEO_EXTENSIONS,
   SupportedVideoExtension,
-  PickVideoFileResult
+  PickVideoFileResult,
+  EXTERNAL_LINKS
 } from '../shared/ipcTypes'
 import icon from '../../resources/icon.png?asset'
 
@@ -134,6 +135,13 @@ function registerIpcHandlers(): void {
     // Renderer input crossing the IPC boundary is untrusted: validate the shape before touching the OS shell.
     if (typeof targetPath !== 'string' || targetPath.length === 0) return
     shell.showItemInFolder(targetPath)
+  })
+
+  ipcMain.on(IPC_CHANNELS.shellOpenExternalLink, (_event, key: unknown) => {
+    // Only ever accept a known allowlist key from the renderer, never a raw URL string,
+    // so the renderer can't direct shell.openExternal at an arbitrary address.
+    if (key !== 'portfolio' && key !== 'github') return
+    shell.openExternal(EXTERNAL_LINKS[key])
   })
 }
 

@@ -17,7 +17,7 @@ export function TitleBar({ theme, onToggleTheme }: TitleBarProps): React.JSX.Ele
         <div className="flex h-6 w-6 items-center justify-center rounded-md bg-accent text-[13px] font-bold text-accent-fg">
           c
         </div>
-        <span className="text-[13px] font-semibold text-primary">comp</span>
+        <span className="text-[13px] font-semibold text-primary">comp by jkd🌼</span>
       </div>
 
       <div className="flex-1" />

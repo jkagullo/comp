@@ -1,0 +1,159 @@
+import { Film, FolderOpen, FolderOutput, Percent, Target, Globe, Github } from 'lucide-react'
+import { Button } from '../components/Button'
+import type { ExternalLinkKey } from '@shared/ipcTypes'
+
+interface OnboardingScreenProps {
+  readonly step: number
+  readonly onBack: () => void
+  readonly onNext: () => void
+  readonly onSkip: () => void
+  readonly onFinish: () => void
+}
+
+interface OnboardingStepContent {
+  readonly title: string
+  readonly description: string
+  readonly body: React.JSX.Element
+}
+
+/** Shared icon-tile visual language, matching the dropzone icon in EmptyScreen. */
+function IconTile({ icon }: { readonly icon: React.JSX.Element }): React.JSX.Element {
+  return (
+    <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-panel">
+      {icon}
+    </div>
+  )
+}
+
+function ModeChip({
+  icon,
+  label
+}: {
+  readonly icon: React.JSX.Element
+  readonly label: string
+}): React.JSX.Element {
+  return (
+    <div className="flex items-center gap-2 rounded-full bg-accent-tint px-4 py-2 text-[13px] font-medium text-accent">
+      {icon}
+      {label}
+    </div>
+  )
+}
+
+const STEPS: readonly OnboardingStepContent[] = [
+  {
+    title: 'Welcome to comp',
+    description:
+      'A simple, local video compressor. Nothing is uploaded, and nothing is tracked — everything happens on your machine.',
+    body: <IconTile icon={<Film className="h-6 w-6 text-tertiary" strokeWidth={1.75} />} />
+  },
+  {
+    title: 'Load a video',
+    description: 'Drag a video file in, or pick one from disk.',
+    body: <IconTile icon={<FolderOpen className="h-6 w-6 text-tertiary" strokeWidth={1.75} />} />
+  },
+  {
+    title: 'Choose how to compress',
+    description: 'Compress by percentage, or target an exact file size.',
+    body: (
+      <div className="flex items-center gap-3">
+        <ModeChip
+          icon={<Percent className="h-4 w-4" strokeWidth={1.75} />}
+          label="Percentage"
+        />
+        <ModeChip icon={<Target className="h-4 w-4" strokeWidth={1.75} />} label="Target size" />
+      </div>
+    )
+  },
+  {
+    title: 'Output & compress',
+    description: 'Pick an output folder and filename, then compress.',
+    body: (
+      <IconTile icon={<FolderOutput className="h-6 w-6 text-tertiary" strokeWidth={1.75} />} />
+    )
+  }
+]
+
+const LAST_STEP_INDEX = STEPS.length - 1
+
+function openExternalLink(key: ExternalLinkKey): void {
+  window.comp.openExternalLink(key)
+}
+
+/**
+ * First-run onboarding sequence shown once before EmptyScreen. All 4 steps share one layout
+ * (progress dots + Back/Skip/Next footer) driven by a local content array, mirroring how
+ * LoadedScreen branches internally on compression mode rather than splitting into per-mode
+ * components.
+ */
+export function OnboardingScreen({
+  step,
+  onBack,
+  onNext,
+  onSkip,
+  onFinish
+}: OnboardingScreenProps): React.JSX.Element {
+  const isLastStep = step === LAST_STEP_INDEX
+  const content = STEPS[step]
+
+  return (
+    <div className="absolute inset-5">
+      <div className="flex h-full w-full flex-col items-center justify-center gap-6 rounded-[14px] border-2 border-dashed border-border">
+        {content.body}
+
+        <div className="flex max-w-md flex-col items-center gap-1 px-6 text-center">
+          <p className="text-[17px] font-semibold text-primary">{content.title}</p>
+          <p className="text-[13px] text-secondary">{content.description}</p>
+        </div>
+
+        {isLastStep && (
+          <div className="flex flex-col items-center gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => openExternalLink('portfolio')}
+              className="w-44"
+            >
+              <Globe className="h-4 w-4" strokeWidth={1.75} />
+              Portfolio
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => openExternalLink('github')}
+              className="w-44"
+            >
+              <Github className="h-4 w-4" strokeWidth={1.75} />
+              GitHub
+            </Button>
+          </div>
+        )}
+
+        <div className="flex items-center gap-1.5">
+          {STEPS.map((_, index) => (
+            <div
+              key={index}
+              className={`h-1.5 w-1.5 rounded-full ${
+                index === step ? 'bg-accent' : 'bg-border'
+              }`}
+            />
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2">
+          {step > 0 && (
+            <Button variant="secondary" onClick={onBack}>
+              Back
+            </Button>
+          )}
+          {!isLastStep && (
+            <Button variant="secondary" onClick={onSkip}>
+              Skip
+            </Button>
+          )}
+          <Button variant="primary" onClick={isLastStep ? onFinish : onNext}>
+            {isLastStep ? 'Finish' : 'Next'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}

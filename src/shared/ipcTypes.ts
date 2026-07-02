@@ -29,8 +29,22 @@ export const IPC_CHANNELS = {
   dialogPickVideoFile: 'dialog:pick-video-file',
   dialogPickFolder: 'dialog:pick-folder',
   pathGetDefaultOutputFolder: 'path:get-default-output-folder',
-  shellShowItemInFolder: 'shell:show-item-in-folder'
+  shellShowItemInFolder: 'shell:show-item-in-folder',
+  shellOpenExternalLink: 'shell:open-external-link'
 } as const
+
+/**
+ * Allowlist of external destinations the renderer may ask the OS browser to open.
+ * The renderer only ever sends the *key*, never a raw URL — this makes it impossible
+ * for renderer-side code (or a compromised renderer) to direct `shell.openExternal`
+ * at an arbitrary address via the IPC boundary.
+ */
+export const EXTERNAL_LINKS = {
+  portfolio: 'https://jkagullo.is-pinoy.dev/',
+  github: 'https://github.com/jkagullo'
+} as const
+
+export type ExternalLinkKey = keyof typeof EXTERNAL_LINKS
 
 /** Result of a native "select video file" dialog, already stat'd on the main side. */
 export interface PickedVideoFile {

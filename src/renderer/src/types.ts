@@ -23,6 +23,7 @@ export interface OutputSettings {
 }
 
 export type Screen =
+  | { readonly kind: 'onboarding'; readonly step: number }
   | { readonly kind: 'empty' }
   | { readonly kind: 'loaded'; readonly video: LoadedVideo }
   | {

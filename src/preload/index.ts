@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { pathToFileURL } from 'url'
-import { IPC_CHANNELS, PickVideoFileResult } from '../shared/ipcTypes'
+import { IPC_CHANNELS, PickVideoFileResult, ExternalLinkKey } from '../shared/ipcTypes'
 
 /**
  * The only surface the renderer can reach. Every member is either a thin,
@@ -32,6 +32,10 @@ const compApi = {
     ipcRenderer.invoke(IPC_CHANNELS.pathGetDefaultOutputFolder),
   showItemInFolder: (targetPath: string): void => {
     ipcRenderer.send(IPC_CHANNELS.shellShowItemInFolder, targetPath)
+  },
+  /** Opens a known, allowlisted destination in the OS default browser (never in-app navigation). */
+  openExternalLink: (key: ExternalLinkKey): void => {
+    ipcRenderer.send(IPC_CHANNELS.shellOpenExternalLink, key)
   },
 
   /** Resolves the absolute filesystem path for a File the renderer received via drag-and-drop. */
