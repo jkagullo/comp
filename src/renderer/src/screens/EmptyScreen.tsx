@@ -1,6 +1,10 @@
 import { useCallback, useState } from 'react'
 import { ChevronUp } from 'lucide-react'
-import { SUPPORTED_VIDEO_EXTENSIONS, SupportedVideoExtension } from '@shared/ipcTypes'
+import {
+  SUPPORTED_VIDEO_EXTENSIONS,
+  SupportedVideoExtension,
+  VideoMetadataErrorCode
+} from '@shared/ipcTypes'
 import { Button } from '../components/Button'
 import { extractVideoMetadata } from '../utils/videoMetadata'
 import type { LoadedVideo } from '../types'
@@ -8,6 +12,7 @@ import type { LoadedVideo } from '../types'
 interface EmptyScreenProps {
   readonly onVideoLoaded: (video: LoadedVideo) => void
   readonly onUnsupportedFile: (fileName: string, extension: string) => void
+  readonly onMetadataError: (fileName: string, code: VideoMetadataErrorCode | null) => void
 }
 
 function extensionOf(fileName: string): string {
@@ -21,27 +26,42 @@ function isSupportedExtension(extension: string): extension is SupportedVideoExt
 
 export function EmptyScreen({
   onVideoLoaded,
-  onUnsupportedFile
+  onUnsupportedFile,
+  onMetadataError
 }: EmptyScreenProps): React.JSX.Element {
   const [isDraggingOver, setIsDraggingOver] = useState(false)
 
   const loadFromPath = useCallback(
-    async (path: string, name: string, extension: SupportedVideoExtension, sizeBytes: number) => {
+    async (path: string, name: string, extension: SupportedVideoExtension) => {
+      const result = await window.comp.getVideoMetadata(path)
+      if (result.kind === 'error') {
+        onMetadataError(name, result.error.code)
+        return
+      }
+
       const sourceUrl = window.comp.pathToFileUrl(path)
-      const metadata = await extractVideoMetadata(sourceUrl)
+      let thumbnailDataUrl: string | null = null
+      try {
+        const extracted = await extractVideoMetadata(sourceUrl)
+        thumbnailDataUrl = extracted.thumbnailDataUrl
+      } catch {
+        // Thumbnail capture is best-effort; a placeholder is shown if this fails.
+        thumbnailDataUrl = null
+      }
+
       onVideoLoaded({
         sourceUrl,
         path,
         name,
         extension,
-        sizeBytes,
-        durationSec: metadata.durationSec,
-        width: metadata.width,
-        height: metadata.height,
-        thumbnailDataUrl: metadata.thumbnailDataUrl
+        sizeBytes: result.metadata.sizeBytes,
+        durationSec: result.metadata.duration,
+        width: result.metadata.width,
+        height: result.metadata.height,
+        thumbnailDataUrl
       })
     },
-    [onVideoLoaded]
+    [onVideoLoaded, onMetadataError]
   )
 
   const handleSelectFile = useCallback(async () => {
@@ -51,13 +71,12 @@ export function EmptyScreen({
       onUnsupportedFile(result.fileName, result.extension)
       return
     }
-    await loadFromPath(
-      result.file.path,
-      result.file.name,
-      result.file.extension,
-      result.file.sizeBytes
-    )
-  }, [loadFromPath, onUnsupportedFile])
+    try {
+      await loadFromPath(result.file.path, result.file.name, result.file.extension)
+    } catch {
+      onMetadataError(result.file.name, null)
+    }
+  }, [loadFromPath, onUnsupportedFile, onMetadataError])
 
   const handleDrop = useCallback(
     async (event: React.DragEvent<HTMLDivElement>) => {
@@ -74,9 +93,13 @@ export function EmptyScreen({
       }
 
       const path = window.comp.getPathForFile(file)
-      await loadFromPath(path, file.name, extension, file.size)
+      try {
+        await loadFromPath(path, file.name, extension)
+      } catch {
+        onMetadataError(file.name, null)
+      }
     },
-    [loadFromPath, onUnsupportedFile]
+    [loadFromPath, onUnsupportedFile, onMetadataError]
   )
 
   return (

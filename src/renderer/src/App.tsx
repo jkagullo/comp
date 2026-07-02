@@ -11,6 +11,8 @@ import { useCompressionRun } from './hooks/useCompressionRun'
 import { useHasSeenOnboarding } from './hooks/useHasSeenOnboarding'
 import { bytesToMB, joinPath } from './utils/format'
 import { estimateTargetMB, jitterAchievedMB } from './utils/compressionEstimate'
+import { describeVideoMetadataError } from './utils/videoMetadataErrors'
+import type { VideoMetadataErrorCode } from '@shared/ipcTypes'
 import type { CompressionMode, LoadedVideo, OutputSettings, Screen } from './types'
 
 const SUPPORTED_EXTENSIONS_LABEL = 'MP4, MOV, MKV, AVI, WEBM, WMV, or FLV'
@@ -54,6 +56,14 @@ function App(): React.JSX.Element {
       detail: `"${fileName}" has ${extensionLabel}, which isn't supported. Try a file in one of these formats: ${SUPPORTED_EXTENSIONS_LABEL}.`
     })
   }, [])
+
+  const handleMetadataError = useCallback(
+    (fileName: string, code: VideoMetadataErrorCode | null) => {
+      const { title, detail } = describeVideoMetadataError(fileName, code)
+      setScreen({ kind: 'error', title, detail })
+    },
+    []
+  )
 
   const handleStartCompress = useCallback(
     (video: LoadedVideo, mode: CompressionMode, output: OutputSettings) => {
@@ -105,6 +115,7 @@ function App(): React.JSX.Element {
           <EmptyScreen
             onVideoLoaded={handleVideoLoaded}
             onUnsupportedFile={handleUnsupportedFile}
+            onMetadataError={handleMetadataError}
           />
         )}
 
