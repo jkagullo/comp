@@ -10,9 +10,11 @@ interface TitleBarProps {
 }
 
 function DevInfo(): React.JSX.Element {
-  const [isOpen, setIsOpen] = useState(false)
+  const [pinned, setPinned] = useState(false)
+  const [hovered, setHovered] = useState(false)
   const [version, setVersion] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const isOpen = pinned || hovered
 
   useEffect(() => {
     window.comp.getAppVersion().then(setVersion)
@@ -21,11 +23,15 @@ function DevInfo(): React.JSX.Element {
   useEffect(() => {
     if (!isOpen) return
 
+    const close = (): void => {
+      setPinned(false)
+      setHovered(false)
+    }
     const handlePointerDown = (event: PointerEvent): void => {
-      if (!containerRef.current?.contains(event.target as Node)) setIsOpen(false)
+      if (!containerRef.current?.contains(event.target as Node)) close()
     }
     const handleKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') setIsOpen(false)
+      if (event.key === 'Escape') close()
     }
 
     document.addEventListener('pointerdown', handlePointerDown)
@@ -40,14 +46,14 @@ function DevInfo(): React.JSX.Element {
     <div
       ref={containerRef}
       className="titlebar-no-drag relative flex items-center"
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       <button
         type="button"
         aria-label="Developer info and app version"
         aria-expanded={isOpen}
-        onClick={() => setIsOpen((value) => !value)}
+        onClick={() => setPinned((value) => !value)}
         className="flex cursor-pointer items-center gap-2 rounded-md px-1 py-1 transition-colors hover:bg-hover"
       >
         <div className="flex h-6 w-6 items-center justify-center rounded-md bg-accent text-sm font-bold text-accent-fg">
@@ -57,26 +63,36 @@ function DevInfo(): React.JSX.Element {
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full z-50 mt-1 w-56 rounded-lg border border-border bg-panel p-3 shadow-lg">
-          <p className="text-sm font-semibold text-primary">comp{version ? ` v${version}` : ''}</p>
-          <p className="mt-0.5 text-xs text-secondary">by jkd</p>
-          <div className="mt-3 flex flex-col gap-1.5">
-            <button
-              type="button"
-              onClick={() => window.comp.openExternalLink('portfolio')}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-secondary transition-colors hover:bg-hover hover:text-primary"
-            >
-              <Globe className="h-3.5 w-3.5" strokeWidth={1.75} />
-              Portfolio
-            </button>
-            <button
-              type="button"
-              onClick={() => window.comp.openExternalLink('github')}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-secondary transition-colors hover:bg-hover hover:text-primary"
-            >
-              <Code2 className="h-3.5 w-3.5" strokeWidth={1.75} />
-              GitHub
-            </button>
+        <div className="absolute left-0 top-full z-50 w-56 pt-1">
+          <div className="rounded-lg border border-border bg-panel p-3 shadow-lg">
+            <p className="text-sm font-semibold text-primary">
+              comp{version ? ` v${version}` : ''}
+            </p>
+            <p className="mt-0.5 text-xs text-secondary">by jkd</p>
+            <div className="mt-3 flex flex-col gap-1.5">
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  window.comp.openExternalLink('portfolio')
+                }}
+                className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-secondary transition-colors hover:bg-hover hover:text-primary"
+              >
+                <Globe className="h-3.5 w-3.5" strokeWidth={1.75} />
+                Portfolio
+              </button>
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  window.comp.openExternalLink('github')
+                }}
+                className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-secondary transition-colors hover:bg-hover hover:text-primary"
+              >
+                <Code2 className="h-3.5 w-3.5" strokeWidth={1.75} />
+                GitHub
+              </button>
+            </div>
           </div>
         </div>
       )}
