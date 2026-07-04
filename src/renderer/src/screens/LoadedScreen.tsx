@@ -6,9 +6,11 @@ import {
   basenameWithoutExtension,
   formatDuration,
   formatFileSize,
-  formatResolution
+  formatResolution,
+  joinPath
 } from '../utils/format'
 import { estimateTargetMB, isPercentValid, isTargetSizeValid } from '@shared/compression'
+import { filenameErrorMessage, isFilenameValid } from '@shared/filename'
 import { reductionPercent } from '../utils/compressionEstimate'
 import type { CompressionMode, LoadedVideo, OutputSettings } from '../types'
 
@@ -33,6 +35,7 @@ export function LoadedScreen({
   const [fileName, setFileName] = useState(
     () => `${basenameWithoutExtension(video.name)}-compressed.${video.extension}`
   )
+  const [pendingOverwriteConfirm, setPendingOverwriteConfirm] = useState(false)
 
   useEffect(() => {
     window.comp.getDefaultOutputFolder().then(setOutputFolder)
@@ -45,22 +48,50 @@ export function LoadedScreen({
   const toMB = estimateTargetMB(video.sizeBytes, mode)
   const reduction = reductionPercent(fromMB, toMB)
 
+  const filenameError = filenameErrorMessage(fileName, video.extension)
+
   const isValid =
+    (modeKind === 'percentage'
+      ? isPercentValid(percent)
+      : isTargetSizeValid(targetMB, video.sizeBytes)) && isFilenameValid(fileName, video.extension)
+
+  const errorMessage =
     modeKind === 'percentage'
       ? isPercentValid(percent)
+        ? null
+        : 'Percentage must be between 1% and 99%.'
       : isTargetSizeValid(targetMB, video.sizeBytes)
-
-  const errorMessage = isValid
-    ? null
-    : modeKind === 'percentage'
-      ? 'Percentage must be between 1% and 99%.'
-      : targetMB >= fromMB
-        ? `Target size must be less than the original file size (${fromMB.toFixed(1)} MB).`
-        : 'Enter a target size greater than 0 MB.'
+        ? null
+        : targetMB >= fromMB
+          ? `Target size must be less than the original file size (${fromMB.toFixed(1)} MB).`
+          : 'Enter a target size greater than 0 MB.'
 
   const handleChooseFolder = async (): Promise<void> => {
     const folder = await window.comp.pickOutputFolder()
-    if (folder) setOutputFolder(folder)
+    if (folder) {
+      setOutputFolder(folder)
+      setPendingOverwriteConfirm(false)
+    }
+  }
+
+  const handleFileNameChange = (value: string): void => {
+    setFileName(value)
+    setPendingOverwriteConfirm(false)
+  }
+
+  const output: OutputSettings = { folder: outputFolder, fileName }
+
+  const handleCompressClick = async (): Promise<void> => {
+    if (pendingOverwriteConfirm) {
+      onStartCompress(mode, output)
+      return
+    }
+    const exists = await window.comp.pathExists(joinPath(outputFolder, fileName))
+    if (exists) {
+      setPendingOverwriteConfirm(true)
+      return
+    }
+    onStartCompress(mode, output)
   }
 
   return (
@@ -182,16 +213,37 @@ export function LoadedScreen({
         <input
           type="text"
           value={fileName}
-          onChange={(event) => setFileName(event.target.value)}
-          className="w-full rounded-lg border border-border bg-panel px-3 py-2 text-[13px] text-primary outline-none focus:border-accent"
+          onChange={(event) => handleFileNameChange(event.target.value)}
+          className={`w-full rounded-lg border bg-panel px-3 py-2 text-[13px] text-primary outline-none focus:border-accent ${
+            filenameError ? 'border-error' : 'border-border'
+          }`}
         />
+        {filenameError && <p className="text-[12px] text-error">{filenameError}</p>}
       </div>
+
+      {pendingOverwriteConfirm && (
+        <div className="flex flex-col gap-2 rounded-lg border border-error bg-hover px-3 py-2">
+          <p className="text-[12px] text-error">
+            &quot;{fileName}&quot; already exists in this folder. Compressing will overwrite it.
+          </p>
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" onClick={() => setPendingOverwriteConfirm(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={() => onStartCompress(mode, output)}>
+              Overwrite and compress
+            </Button>
+          </div>
+        </div>
+      )}
 
       <Button
         variant="primary"
         className="mt-auto w-full py-2.5"
         disabled={!isValid}
-        onClick={() => onStartCompress(mode, { folder: outputFolder, fileName })}
+        onClick={() => {
+          void handleCompressClick()
+        }}
       >
         Compress
       </Button>

@@ -38,6 +38,8 @@ const compApi = {
   pickOutputFolder: (): Promise<string | null> => ipcRenderer.invoke(IPC_CHANNELS.dialogPickFolder),
   getDefaultOutputFolder: (): Promise<string> =>
     ipcRenderer.invoke(IPC_CHANNELS.pathGetDefaultOutputFolder),
+  pathExists: (targetPath: string): Promise<boolean> =>
+    ipcRenderer.invoke(IPC_CHANNELS.fsPathExists, targetPath),
   showItemInFolder: (targetPath: string): void => {
     ipcRenderer.send(IPC_CHANNELS.shellShowItemInFolder, targetPath)
   },

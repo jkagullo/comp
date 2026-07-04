@@ -29,6 +29,7 @@ export const IPC_CHANNELS = {
   dialogPickVideoFile: 'dialog:pick-video-file',
   dialogPickFolder: 'dialog:pick-folder',
   pathGetDefaultOutputFolder: 'path:get-default-output-folder',
+  fsPathExists: 'fs:path-exists',
   shellShowItemInFolder: 'shell:show-item-in-folder',
   shellOpenExternalLink: 'shell:open-external-link',
   ffmpegGetVersion: 'ffmpeg:get-version',
