@@ -9,17 +9,36 @@ import {
   PickVideoFileResult,
   VideoMetadataResult,
   CompressionResult,
+  CompressionStartTwoPassRequest,
   EXTERNAL_LINKS
 } from '../shared/ipcTypes'
 import icon from '../../resources/icon.png?asset'
 import { getFfmpegVersion } from './ffmpeg'
 import { getVideoMetadata } from './metadata'
 import { runSinglePassCompression } from './compress'
+import { runTwoPassCompression, cancelJob } from './compress2pass'
 
 let mainWindow: BrowserWindow | null = null
 
 function isSupportedExtension(extension: string): extension is SupportedVideoExtension {
   return (SUPPORTED_VIDEO_EXTENSIONS as readonly string[]).includes(extension)
+}
+
+/** Renderer input crossing the IPC boundary is untrusted: validate the shape before
+ *  passing it on to the two-pass compression runner. */
+function isValidTwoPassRequest(request: unknown): request is CompressionStartTwoPassRequest {
+  if (typeof request !== 'object' || request === null) return false
+  const candidate = request as Record<string, unknown>
+  return (
+    typeof candidate.jobId === 'string' &&
+    candidate.jobId.length > 0 &&
+    typeof candidate.inputPath === 'string' &&
+    candidate.inputPath.length > 0 &&
+    typeof candidate.outputPath === 'string' &&
+    candidate.outputPath.length > 0 &&
+    typeof candidate.targetMB === 'number' &&
+    typeof candidate.durationSec === 'number'
+  )
 }
 
 /** Every ipcMain handler that receives a window-scoped call resolves the sender's BrowserWindow this way. */
@@ -136,6 +155,19 @@ function registerIpcHandlers(): void {
     return app.getPath('downloads')
   })
 
+  ipcMain.handle(
+    IPC_CHANNELS.fsPathExists,
+    async (_event, targetPath: unknown): Promise<boolean> => {
+      if (typeof targetPath !== 'string' || targetPath.length === 0) return false
+      try {
+        await stat(targetPath)
+        return true
+      } catch {
+        return false
+      }
+    }
+  )
+
   ipcMain.on(IPC_CHANNELS.shellShowItemInFolder, (_event, targetPath: unknown) => {
     // Renderer input crossing the IPC boundary is untrusted: validate the shape before touching the OS shell.
     if (typeof targetPath !== 'string' || targetPath.length === 0) return
@@ -178,6 +210,41 @@ function registerIpcHandlers(): void {
       const { name, ext } = parse(filePath)
       const outputPath = join(dirname(filePath), `${name}_compressed${ext}`)
       return runSinglePassCompression(filePath, outputPath)
+    }
+  )
+
+  ipcMain.handle(
+    IPC_CHANNELS.compressionStartTwoPass,
+    (event, request: unknown): Promise<CompressionResult> => {
+      if (!isValidTwoPassRequest(request)) {
+        return Promise.resolve({
+          kind: 'error',
+          error: { code: 'input-stat-failed', message: 'Malformed compression start request.' }
+        })
+      }
+      const senderWindow = windowFromEvent(event)
+      return runTwoPassCompression({
+        ...request,
+        onProgress: (percent, pass, etaSec) => {
+          senderWindow?.webContents.send(IPC_CHANNELS.compressionProgress, {
+            jobId: request.jobId,
+            pass,
+            percent,
+            etaSec
+          })
+        }
+      })
+    }
+  )
+
+  ipcMain.handle(
+    IPC_CHANNELS.compressionCancel,
+    (_event, jobId: unknown): Promise<{ cancelled: boolean }> => {
+      // Renderer input crossing the IPC boundary is untrusted: validate the shape before touching the process table.
+      if (typeof jobId !== 'string' || jobId.length === 0) {
+        return Promise.resolve({ cancelled: false })
+      }
+      return cancelJob(jobId)
     }
   )
 }

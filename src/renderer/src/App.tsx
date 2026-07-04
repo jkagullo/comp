@@ -11,8 +11,8 @@ import { useCompressionRun } from './hooks/useCompressionRun'
 import { useHasSeenOnboarding } from './hooks/useHasSeenOnboarding'
 import { bytesToMB, joinPath } from './utils/format'
 import { estimateTargetMB } from '@shared/compression'
-import { jitterAchievedMB } from './utils/compressionEstimate'
 import { describeVideoMetadataError } from './utils/videoMetadataErrors'
+import { describeCompressionError } from './utils/compressionErrors'
 import type { VideoMetadataErrorCode } from '@shared/ipcTypes'
 import type { CompressionMode, LoadedVideo, OutputSettings, Screen } from './types'
 
@@ -69,20 +69,40 @@ function App(): React.JSX.Element {
   const handleStartCompress = useCallback(
     (video: LoadedVideo, mode: CompressionMode, output: OutputSettings) => {
       setScreen({ kind: 'progress', video, mode, output })
-      compressionRun.start(bytesToMB(video.sizeBytes), () => {
-        setScreen((prev) => {
-          if (prev.kind !== 'progress') return prev
-          const fromMB = bytesToMB(prev.video.sizeBytes)
-          const targetMB = estimateTargetMB(prev.video.sizeBytes, prev.mode)
-          const achievedMB = jitterAchievedMB(fromMB, targetMB)
-          return {
-            kind: 'done',
-            video: prev.video,
-            mode: prev.mode,
-            output: prev.output,
-            achievedMB
-          }
+
+      if (video.path === null) {
+        setScreen({
+          kind: 'error',
+          title: 'Cannot compress this file',
+          detail: 'The selected file has no accessible filesystem path.'
         })
+        return
+      }
+
+      const targetMB = estimateTargetMB(video.sizeBytes, mode)
+      compressionRun.start({
+        inputPath: video.path,
+        outputPath: joinPath(output.folder, output.fileName),
+        targetMB,
+        durationSec: video.durationSec,
+        onComplete: (outputSizeBytes) => {
+          setScreen((prev) =>
+            prev.kind !== 'progress'
+              ? prev
+              : {
+                  kind: 'done',
+                  video: prev.video,
+                  mode: prev.mode,
+                  output: prev.output,
+                  achievedMB: bytesToMB(outputSizeBytes)
+                }
+          )
+        },
+        onError: (error) => {
+          if (error.code === 'cancelled') return
+          const { title, detail } = describeCompressionError(error.code)
+          setScreen({ kind: 'error', title, detail })
+        }
       })
     },
     [compressionRun]

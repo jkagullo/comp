@@ -5,6 +5,8 @@ import {
   PickVideoFileResult,
   VideoMetadataResult,
   CompressionResult,
+  CompressionStartTwoPassRequest,
+  CompressionProgressEvent,
   ExternalLinkKey
 } from '../shared/ipcTypes'
 
@@ -49,6 +51,16 @@ const compApi = {
     ipcRenderer.invoke(IPC_CHANNELS.videoGetMetadata, filePath),
   runSinglePassCompression: (filePath: string): Promise<CompressionResult> =>
     ipcRenderer.invoke(IPC_CHANNELS.compressionRunSinglePass, filePath),
+  startTwoPassCompression: (request: CompressionStartTwoPassRequest): Promise<CompressionResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.compressionStartTwoPass, request),
+  onCompressionProgress: (callback: (event: CompressionProgressEvent) => void): (() => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, payload: CompressionProgressEvent): void =>
+      callback(payload)
+    ipcRenderer.on(IPC_CHANNELS.compressionProgress, listener)
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.compressionProgress, listener)
+  },
+  cancelCompression: (jobId: string): Promise<{ cancelled: boolean }> =>
+    ipcRenderer.invoke(IPC_CHANNELS.compressionCancel, jobId),
 
   /** Resolves the absolute filesystem path for a File the renderer received via drag-and-drop. */
   getPathForFile: (file: File): string => webUtils.getPathForFile(file),

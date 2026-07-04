@@ -1,75 +1,86 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { clamp } from '../utils/format'
+import type { CompressionError } from '@shared/ipcTypes'
 
 export interface CompressionProgress {
   readonly percent: number
   readonly etaSec: number
 }
 
-const TICK_MS = 120
-const MS_PER_MB = 90
-const MIN_DURATION_MS = 2500
-const MAX_DURATION_MS = 12000
+interface StartParams {
+  readonly inputPath: string
+  readonly outputPath: string
+  readonly targetMB: number
+  readonly durationSec: number
+  readonly onComplete: (outputSizeBytes: number) => void
+  readonly onError: (error: CompressionError) => void
+}
 
 interface UseCompressionRunResult {
   readonly progress: CompressionProgress | null
-  readonly start: (sourceSizeMB: number, onComplete: () => void) => void
+  readonly start: (params: StartParams) => void
   readonly cancel: () => void
 }
 
 /**
- * Drives a fake, timer-based compression run scaled to the source file size.
- * This is a scaffold stub — no real encoding happens here. Swap this hook's
- * internals for a real ffmpeg-backed progress stream when that work lands.
+ * Drives a real 2-pass ffmpeg compression run via the main process, subscribing to
+ * streamed compression:progress events for the job it started.
  */
 export function useCompressionRun(): UseCompressionRunResult {
   const [progress, setProgress] = useState<CompressionProgress | null>(null)
-  const generationRef = useRef(0)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const unsubscribeRef = useRef<(() => void) | null>(null)
+  const jobIdRef = useRef<string | null>(null)
 
-  const stopInterval = useCallback((): void => {
-    if (intervalRef.current !== null) {
-      clearInterval(intervalRef.current)
-      intervalRef.current = null
-    }
+  const stopListening = useCallback((): void => {
+    unsubscribeRef.current?.()
+    unsubscribeRef.current = null
   }, [])
 
-  useEffect(() => stopInterval, [stopInterval])
-
-  const cancel = useCallback((): void => {
-    generationRef.current += 1
-    stopInterval()
-    setProgress(null)
-  }, [stopInterval])
+  useEffect(() => stopListening, [stopListening])
 
   const start = useCallback(
-    (sourceSizeMB: number, onComplete: () => void): void => {
-      generationRef.current += 1
-      const generation = generationRef.current
-      const totalMs = clamp(sourceSizeMB * MS_PER_MB, MIN_DURATION_MS, MAX_DURATION_MS)
-      const startedAt = Date.now()
+    (params: StartParams): void => {
+      const jobId = crypto.randomUUID()
+      jobIdRef.current = jobId
 
-      setProgress({ percent: 0, etaSec: totalMs / 1000 })
-      stopInterval()
+      stopListening()
+      setProgress({ percent: 0, etaSec: 0 })
 
-      intervalRef.current = setInterval(() => {
-        if (generationRef.current !== generation) return
+      unsubscribeRef.current = window.comp.onCompressionProgress((event) => {
+        if (event.jobId !== jobIdRef.current) return
+        setProgress({ percent: event.percent, etaSec: event.etaSec ?? 0 })
+      })
 
-        const elapsedMs = Date.now() - startedAt
-        const percent = clamp((elapsedMs / totalMs) * 100, 0, 100)
-
-        if (percent >= 100) {
-          stopInterval()
+      window.comp
+        .startTwoPassCompression({
+          jobId,
+          inputPath: params.inputPath,
+          outputPath: params.outputPath,
+          targetMB: params.targetMB,
+          durationSec: params.durationSec
+        })
+        .then((result) => {
+          if (jobIdRef.current !== jobId) return
+          stopListening()
           setProgress(null)
-          onComplete()
-          return
-        }
-
-        setProgress({ percent, etaSec: Math.max(0, (totalMs - elapsedMs) / 1000) })
-      }, TICK_MS)
+          if (result.kind === 'success') {
+            params.onComplete(result.result.outputSizeBytes)
+          } else {
+            params.onError(result.error)
+          }
+        })
     },
-    [stopInterval]
+    [stopListening]
   )
+
+  const cancel = useCallback((): void => {
+    const jobId = jobIdRef.current
+    jobIdRef.current = null
+    stopListening()
+    setProgress(null)
+    if (jobId) {
+      window.comp.cancelCompression(jobId).catch(() => {})
+    }
+  }, [stopListening])
 
   return { progress, start, cancel }
 }

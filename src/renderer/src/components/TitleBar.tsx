@@ -2,7 +2,6 @@ import { Copy, Minus, Square, X } from 'lucide-react'
 import type { Theme } from '../hooks/useTheme'
 import { useWindowMaximized } from '../hooks/useWindowMaximized'
 import { DevFfmpegVersionCheck } from './DevFfmpegVersionCheck'
-import { DevCompressionCheck } from './DevCompressionCheck'
 import { ThemeToggle } from './ThemeToggle'
 
 interface TitleBarProps {
@@ -25,7 +24,6 @@ export function TitleBar({ theme, onToggleTheme }: TitleBarProps): React.JSX.Ele
       <div className="flex-1" />
 
       <DevFfmpegVersionCheck />
-      <DevCompressionCheck />
 
       <ThemeToggle theme={theme} onToggle={onToggleTheme} />
 

@@ -4,35 +4,35 @@ Reference for running, building, and debugging this Electron + React (Tailwind C
 
 ## Running the app
 
-| Command | What it does |
-|---|---|
-| `npm run dev` | Starts the app in development mode via `electron-vite dev` (hot reload for the renderer, auto-restart for main/preload changes). |
-| `npm run start` | Runs a production-style preview via `electron-vite preview` (built output, no hot reload). |
+| Command         | What it does                                                                                                                     |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`   | Starts the app in development mode via `electron-vite dev` (hot reload for the renderer, auto-restart for main/preload changes). |
+| `npm run start` | Runs a production-style preview via `electron-vite preview` (built output, no hot reload).                                       |
 
 ## Type checking
 
-| Command | What it does |
-|---|---|
-| `npm run typecheck` | Runs both of the below in sequence. |
+| Command                  | What it does                                                   |
+| ------------------------ | -------------------------------------------------------------- |
+| `npm run typecheck`      | Runs both of the below in sequence.                            |
 | `npm run typecheck:node` | Type-checks the main/preload processes (`tsconfig.node.json`). |
-| `npm run typecheck:web` | Type-checks the renderer (`tsconfig.web.json`). |
+| `npm run typecheck:web`  | Type-checks the renderer (`tsconfig.web.json`).                |
 
 ## Lint & format
 
-| Command | What it does |
-|---|---|
-| `npm run lint` | Runs ESLint (`eslint --cache .`) across the project. |
+| Command          | What it does                                                    |
+| ---------------- | --------------------------------------------------------------- |
+| `npm run lint`   | Runs ESLint (`eslint --cache .`) across the project.            |
 | `npm run format` | Formats the whole project with Prettier (`prettier --write .`). |
 
 ## Building & packaging
 
-| Command | What it does |
-|---|---|
-| `npm run build` | Type-checks, then builds main/preload/renderer via `electron-vite build`. Output goes to `out/`. |
-| `npm run build:unpack` | Builds, then runs `electron-builder --dir` — produces an unpacked app folder (fast, no installer) for quick local testing. |
-| `npm run build:win` | Builds, then produces a Windows installer via `electron-builder --win` (NSIS, see `electron-builder.yml`). |
-| `npm run build:mac` | Builds, then produces a macOS `.dmg` via `electron-builder --mac`. Notarization is currently **off** (`notarize: false` in `electron-builder.yml`). |
-| `npm run build:linux` | Builds, then produces AppImage/snap/deb packages via `electron-builder --linux`. |
+| Command                | What it does                                                                                                                                        |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run build`        | Type-checks, then builds main/preload/renderer via `electron-vite build`. Output goes to `out/`.                                                    |
+| `npm run build:unpack` | Builds, then runs `electron-builder --dir` — produces an unpacked app folder (fast, no installer) for quick local testing.                          |
+| `npm run build:win`    | Builds, then produces a Windows installer via `electron-builder --win` (NSIS, see `electron-builder.yml`).                                          |
+| `npm run build:mac`    | Builds, then produces a macOS `.dmg` via `electron-builder --mac`. Notarization is currently **off** (`notarize: false` in `electron-builder.yml`). |
+| `npm run build:linux`  | Builds, then produces AppImage/snap/deb packages via `electron-builder --linux`.                                                                    |
 
 Packaging config lives in `electron-builder.yml`. Note: its `publish` block currently points at a placeholder URL (`https://example.com/auto-updates`) — auto-update is not wired up yet.
 
