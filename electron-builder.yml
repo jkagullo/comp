@@ -1,5 +1,6 @@
 appId: com.jkd.comp
 productName: comp
+copyright: Copyright © 2026 jkd
 directories:
   buildResources: build
 files:
@@ -40,6 +41,3 @@ linux:
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
-publish:
-  provider: generic
-  url: https://example.com/auto-updates

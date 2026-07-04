@@ -1,5 +1,6 @@
 import { Film, FolderOpen, FolderOutput, Percent, Target, Globe, Code2, Heart } from 'lucide-react'
 import { Button } from '../components/Button'
+import { IconTile } from '../components/IconTile'
 import { useFadeTransition } from '../hooks/useFadeTransition'
 import type { ExternalLinkKey } from '@shared/ipcTypes'
 
@@ -17,15 +18,6 @@ interface OnboardingStepContent {
   readonly body: React.JSX.Element
 }
 
-/** Shared icon-tile visual language, matching the dropzone icon in EmptyScreen. */
-function IconTile({ icon }: { readonly icon: React.JSX.Element }): React.JSX.Element {
-  return (
-    <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-panel">
-      {icon}
-    </div>
-  )
-}
-
 function ModeChip({
   icon,
   label
@@ -34,7 +26,7 @@ function ModeChip({
   readonly label: string
 }): React.JSX.Element {
   return (
-    <div className="flex items-center gap-2 rounded-full bg-accent-tint px-4 py-2 text-[13px] font-medium text-accent">
+    <div className="flex items-center gap-2 rounded-full bg-accent-tint px-4 py-2 text-sm font-medium text-accent">
       {icon}
       {label}
     </div>
@@ -107,8 +99,8 @@ export function OnboardingScreen({
           {content.body}
 
           <div className="flex max-w-md flex-col items-center gap-1 px-6 text-center">
-            <p className="text-[17px] font-semibold text-primary">{content.title}</p>
-            <p className="text-[13px] text-secondary">{content.description}</p>
+            <p className="text-lg font-semibold text-primary">{content.title}</p>
+            <p className="text-sm text-secondary">{content.description}</p>
           </div>
 
           {isLastStep && (

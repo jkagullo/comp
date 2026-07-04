@@ -6,6 +6,7 @@ import {
   VideoMetadataErrorCode
 } from '@shared/ipcTypes'
 import { Button } from '../components/Button'
+import { IconTile } from '../components/IconTile'
 import { extractVideoMetadata } from '../utils/videoMetadata'
 import type { LoadedVideo } from '../types'
 
@@ -120,13 +121,11 @@ export function EmptyScreen({
           isDraggingOver ? 'border-accent bg-accent-tint' : 'border-border'
         }`}
       >
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-panel">
-          <ChevronUp className="h-6 w-6 text-tertiary" strokeWidth={1.75} />
-        </div>
+        <IconTile icon={<ChevronUp className="h-6 w-6 text-tertiary" strokeWidth={1.75} />} />
 
         <div className="flex flex-col items-center gap-1">
-          <p className="text-[17px] font-semibold text-primary">Drag a video here</p>
-          <p className="text-[13px] text-secondary">or</p>
+          <p className="text-lg font-semibold text-primary">Drag a video here</p>
+          <p className="text-sm text-secondary">or</p>
         </div>
 
         <Button
@@ -139,7 +138,7 @@ export function EmptyScreen({
           Select file
         </Button>
 
-        <p className="font-mono text-[11px] tracking-wide text-tertiary">
+        <p className="font-mono text-2xs tracking-wide text-tertiary">
           MP4 · MOV · MKV · AVI · WEBM · WMV · FLV
         </p>
       </div>

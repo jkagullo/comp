@@ -1,7 +1,6 @@
 import { Copy, Minus, Square, X } from 'lucide-react'
 import type { Theme } from '../hooks/useTheme'
 import { useWindowMaximized } from '../hooks/useWindowMaximized'
-import { DevFfmpegVersionCheck } from './DevFfmpegVersionCheck'
 import { ThemeToggle } from './ThemeToggle'
 
 interface TitleBarProps {
@@ -15,15 +14,13 @@ export function TitleBar({ theme, onToggleTheme }: TitleBarProps): React.JSX.Ele
   return (
     <header className="titlebar-drag flex h-10 shrink-0 items-center gap-3 border-b border-border bg-titlebar pl-3 pr-0">
       <div className="flex items-center gap-2">
-        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-accent text-[13px] font-bold text-accent-fg">
+        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-accent text-sm font-bold text-accent-fg">
           c
         </div>
-        <span className="text-[13px] font-semibold text-primary">comp by jkd🌼</span>
+        <span className="text-sm font-semibold text-primary">comp by jkd🌼</span>
       </div>
 
       <div className="flex-1" />
-
-      <DevFfmpegVersionCheck />
 
       <ThemeToggle theme={theme} onToggle={onToggleTheme} />
 

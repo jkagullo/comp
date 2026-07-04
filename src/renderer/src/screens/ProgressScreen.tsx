@@ -17,11 +17,11 @@ export function ProgressScreen({
 }: ProgressScreenProps): React.JSX.Element {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-5 px-10">
-      <p className="max-w-md truncate text-[13px] text-secondary" title={video.name}>
+      <p className="max-w-md truncate text-sm text-secondary" title={video.name}>
         {video.name}
       </p>
 
-      <p className="text-[44px] font-semibold leading-none text-primary tabular-nums">
+      <p className="text-3xl font-semibold leading-none text-primary tabular-nums">
         {Math.round(percent)}%
       </p>
 
@@ -32,7 +32,7 @@ export function ProgressScreen({
         />
       </div>
 
-      <p className="text-[13px] text-secondary">Compressing… about {formatEta(etaSec)} remaining</p>
+      <p className="text-sm text-secondary">Compressing… about {formatEta(etaSec)} remaining</p>
 
       <Button variant="secondary" onClick={onCancel}>
         Cancel

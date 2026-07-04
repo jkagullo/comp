@@ -112,8 +112,8 @@ export function LoadedScreen({
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-semibold text-primary">{video.name}</p>
-          <p className="truncate text-[12px] text-secondary">
+          <p className="truncate text-sm font-semibold text-primary">{video.name}</p>
+          <p className="truncate text-xs text-secondary">
             {formatFileSize(video.sizeBytes)} · {formatDuration(video.durationSec)} ·{' '}
             {formatResolution(video.width, video.height)}
           </p>
@@ -125,13 +125,13 @@ export function LoadedScreen({
 
       {/* Compression settings */}
       <div className="flex flex-col gap-3">
-        <p className="text-[11px] font-semibold tracking-wide text-tertiary">COMPRESSION</p>
+        <p className="text-2xs font-semibold tracking-wide text-tertiary">COMPRESSION</p>
 
         <div className="inline-flex w-fit rounded-lg border border-border bg-hover p-0.5">
           <button
             type="button"
             onClick={() => setModeKind('percentage')}
-            className={`cursor-pointer rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors ${
+            className={`cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
               modeKind === 'percentage' ? 'bg-panel text-primary shadow-sm' : 'text-secondary'
             }`}
           >
@@ -140,7 +140,7 @@ export function LoadedScreen({
           <button
             type="button"
             onClick={() => setModeKind('targetSize')}
-            className={`cursor-pointer rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors ${
+            className={`cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
               modeKind === 'targetSize' ? 'bg-panel text-primary shadow-sm' : 'text-secondary'
             }`}
           >
@@ -159,11 +159,11 @@ export function LoadedScreen({
                 onChange={(event) => setPercent(Number(event.target.value))}
                 className="h-1.5 flex-1 accent-[var(--accent)]"
               />
-              <span className="w-10 shrink-0 text-right text-[13px] font-medium text-primary tabular-nums">
+              <span className="w-10 shrink-0 text-right text-sm font-medium text-primary tabular-nums">
                 {percent}%
               </span>
             </div>
-            {errorMessage && <p className="text-[12px] text-error">{errorMessage}</p>}
+            {errorMessage && <p className="text-xs text-error">{errorMessage}</p>}
           </>
         ) : (
           <>
@@ -174,21 +174,21 @@ export function LoadedScreen({
                 max={Math.max(1, Math.floor(fromMB))}
                 value={targetMB}
                 onChange={(event) => setTargetMB(Number(event.target.value))}
-                className={`w-24 rounded-lg border bg-panel px-2.5 py-1.5 text-[13px] text-primary outline-none focus:border-accent ${
+                className={`w-24 rounded-lg border bg-panel px-2.5 py-1.5 text-sm text-primary outline-none focus:border-accent ${
                   isValid ? 'border-border' : 'border-error'
                 }`}
               />
-              <span className="text-[13px] text-secondary">MB</span>
+              <span className="text-sm text-secondary">MB</span>
             </div>
-            {errorMessage && <p className="text-[12px] text-error">{errorMessage}</p>}
+            {errorMessage && <p className="text-xs text-error">{errorMessage}</p>}
           </>
         )}
 
         <div className="flex items-center gap-2 rounded-lg bg-hover px-3 py-2">
-          <span className="text-[13px] font-medium text-primary tabular-nums">
+          <span className="text-sm font-medium text-primary tabular-nums">
             {fromMB.toFixed(1)} MB → {toMB.toFixed(1)} MB
           </span>
-          <span className="ml-auto rounded-full bg-accent-tint px-2 py-0.5 text-[11px] font-medium text-accent">
+          <span className="ml-auto rounded-full bg-accent-tint px-2 py-0.5 text-2xs font-medium text-accent">
             ~{reduction}% reduction
           </span>
         </div>
@@ -196,7 +196,7 @@ export function LoadedScreen({
 
       {/* Output settings */}
       <div className="flex flex-col gap-2">
-        <p className="text-[11px] font-semibold tracking-wide text-tertiary">OUTPUT</p>
+        <p className="text-2xs font-semibold tracking-wide text-tertiary">OUTPUT</p>
 
         <button
           type="button"
@@ -206,24 +206,24 @@ export function LoadedScreen({
           className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-panel px-3 py-2 text-left transition-colors hover:bg-hover"
         >
           <Folder className="h-4 w-4 shrink-0 text-tertiary" strokeWidth={1.75} />
-          <span className="min-w-0 flex-1 truncate text-[13px] text-secondary">{outputFolder}</span>
-          <span className="shrink-0 text-[12px] font-medium text-accent">Choose folder</span>
+          <span className="min-w-0 flex-1 truncate text-sm text-secondary">{outputFolder}</span>
+          <span className="shrink-0 text-xs font-medium text-accent">Choose folder</span>
         </button>
 
         <input
           type="text"
           value={fileName}
           onChange={(event) => handleFileNameChange(event.target.value)}
-          className={`w-full rounded-lg border bg-panel px-3 py-2 text-[13px] text-primary outline-none focus:border-accent ${
+          className={`w-full rounded-lg border bg-panel px-3 py-2 text-sm text-primary outline-none focus:border-accent ${
             filenameError ? 'border-error' : 'border-border'
           }`}
         />
-        {filenameError && <p className="text-[12px] text-error">{filenameError}</p>}
+        {filenameError && <p className="text-xs text-error">{filenameError}</p>}
       </div>
 
       {pendingOverwriteConfirm && (
         <div className="flex flex-col gap-2 rounded-lg border border-error bg-hover px-3 py-2">
-          <p className="text-[12px] text-error">
+          <p className="text-xs text-error">
             &quot;{fileName}&quot; already exists in this folder. Compressing will overwrite it.
           </p>
           <div className="flex items-center gap-2">

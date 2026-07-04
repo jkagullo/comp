@@ -44,7 +44,6 @@ description: >-
   Since a logical chunk of Electron/TypeScript code was just written, proactively use the electron-typescript-expert agent to type-check and review it.
   </commentary>
   </example>
-tools: all
 model: sonnet
 ---
 

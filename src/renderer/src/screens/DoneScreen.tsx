@@ -1,5 +1,6 @@
 import { CheckCircle2 } from 'lucide-react'
 import { Button } from '../components/Button'
+import { IconTile } from '../components/IconTile'
 import { bytesToMB } from '../utils/format'
 import { reductionPercent } from '../utils/compressionEstimate'
 import type { CompressionMode, LoadedVideo, OutputSettings } from '../types'
@@ -29,18 +30,19 @@ export function DoneScreen({
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-10 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success-tint">
-        <CheckCircle2 className="h-7 w-7 text-success" strokeWidth={1.75} />
-      </div>
+      <IconTile
+        variant="success"
+        icon={<CheckCircle2 className="h-7 w-7 text-success" strokeWidth={1.75} />}
+      />
 
       <div className="flex flex-col items-center gap-1.5">
-        <p className="text-[17px] font-semibold text-primary">Compression complete</p>
-        <p className="text-[15px] font-medium text-primary">
+        <p className="text-lg font-semibold text-primary">Compression complete</p>
+        <p className="text-base font-medium text-primary">
           {fromMB.toFixed(1)} MB → {achievedMB.toFixed(1)} MB
         </p>
-        <p className="text-[13px] text-secondary">{comparisonCaption}</p>
+        <p className="text-sm text-secondary">{comparisonCaption}</p>
         <p
-          className="mt-1 truncate text-[12px] text-tertiary"
+          className="mt-1 truncate text-xs text-tertiary"
           title={`${output.folder}\\${output.fileName}`}
         >
           {output.fileName}
