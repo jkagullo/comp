@@ -37,7 +37,12 @@ export const IPC_CHANNELS = {
   videoGetMetadata: 'video:get-metadata',
   compressionStartTwoPass: 'compression:start-two-pass',
   compressionProgress: 'compression:progress',
-  compressionCancel: 'compression:cancel'
+  compressionCancel: 'compression:cancel',
+  updaterUpdateAvailable: 'updater:update-available',
+  updaterDownloadProgress: 'updater:download-progress',
+  updaterUpdateDownloaded: 'updater:update-downloaded',
+  updaterError: 'updater:error',
+  updaterStartDownload: 'updater:start-download'
 } as const
 
 /**
@@ -152,4 +157,27 @@ export interface CompressionProgressEvent {
   readonly pass: 1 | 2
   readonly percent: number
   readonly etaSec: number | null
+}
+
+/** Sent when electron-updater finds a newer published release than the running app. */
+export interface UpdateAvailableEvent {
+  readonly version: string
+}
+
+/** Sent while the update installer downloads, after the renderer requests it via
+ *  updaterStartDownload. percent is electron-updater's own 0-100 progress value. */
+export interface UpdateDownloadProgressEvent {
+  readonly percent: number
+}
+
+/** Sent once the update installer has finished downloading, shortly before the app
+ *  auto-restarts to apply it (see runUpdater in src/main/updater.ts). */
+export interface UpdateDownloadedEvent {
+  readonly version: string
+}
+
+/** Sent when a check or download fails, so the renderer can surface it instead of the
+ *  update silently never appearing. */
+export interface UpdateErrorEvent {
+  readonly message: string
 }

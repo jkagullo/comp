@@ -16,6 +16,7 @@ import icon from '../../resources/icon.png?asset'
 import { getFfmpegVersion } from './ffmpeg'
 import { getVideoMetadata } from './metadata'
 import { runTwoPassCompression, cancelJob } from './compress2pass'
+import { initUpdater, startUpdateDownload } from './updater'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -232,6 +233,10 @@ function registerIpcHandlers(): void {
       return cancelJob(jobId)
     }
   )
+
+  ipcMain.on(IPC_CHANNELS.updaterStartDownload, () => {
+    startUpdateDownload()
+  })
 }
 
 app.whenReady().then(() => {
@@ -243,6 +248,13 @@ app.whenReady().then(() => {
 
   registerIpcHandlers()
   createWindow()
+
+  // Windows-only for now: unsigned macOS builds can't self-update without a paid Apple
+  // Developer certificate + notarization, so checking there would just surface errors
+  // for a feature that can never actually complete.
+  if (process.platform === 'win32' && app.isPackaged && mainWindow) {
+    initUpdater(mainWindow)
+  }
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

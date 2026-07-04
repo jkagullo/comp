@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { TitleBar } from './components/TitleBar'
+import { UpdateBanner } from './components/UpdateBanner'
 import { EmptyScreen } from './screens/EmptyScreen'
 import { LoadedScreen } from './screens/LoadedScreen'
 import { ProgressScreen } from './screens/ProgressScreen'
@@ -120,6 +121,7 @@ function App(): React.JSX.Element {
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-bg text-primary">
       <TitleBar theme={theme} onToggleTheme={toggleTheme} />
+      <UpdateBanner />
 
       <main className="relative flex-1 overflow-hidden">
         {screen.kind === 'onboarding' && (

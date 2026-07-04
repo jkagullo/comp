@@ -7,7 +7,11 @@ import {
   CompressionResult,
   CompressionStartTwoPassRequest,
   CompressionProgressEvent,
-  ExternalLinkKey
+  ExternalLinkKey,
+  UpdateAvailableEvent,
+  UpdateDownloadProgressEvent,
+  UpdateDownloadedEvent,
+  UpdateErrorEvent
 } from '../shared/ipcTypes'
 
 /**
@@ -67,7 +71,39 @@ const compApi = {
   /** Resolves the absolute filesystem path for a File the renderer received via drag-and-drop. */
   getPathForFile: (file: File): string => webUtils.getPathForFile(file),
   /** Pure string transform (no I/O) so a local path can be used as a <video>/<img> src. */
-  pathToFileUrl: (path: string): string => pathToFileURL(path).href
+  pathToFileUrl: (path: string): string => pathToFileURL(path).href,
+
+  onUpdateAvailable: (callback: (event: UpdateAvailableEvent) => void): (() => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, payload: UpdateAvailableEvent): void =>
+      callback(payload)
+    ipcRenderer.on(IPC_CHANNELS.updaterUpdateAvailable, listener)
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.updaterUpdateAvailable, listener)
+  },
+  onUpdateDownloadProgress: (
+    callback: (event: UpdateDownloadProgressEvent) => void
+  ): (() => void) => {
+    const listener = (
+      _event: Electron.IpcRendererEvent,
+      payload: UpdateDownloadProgressEvent
+    ): void => callback(payload)
+    ipcRenderer.on(IPC_CHANNELS.updaterDownloadProgress, listener)
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.updaterDownloadProgress, listener)
+  },
+  onUpdateDownloaded: (callback: (event: UpdateDownloadedEvent) => void): (() => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, payload: UpdateDownloadedEvent): void =>
+      callback(payload)
+    ipcRenderer.on(IPC_CHANNELS.updaterUpdateDownloaded, listener)
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.updaterUpdateDownloaded, listener)
+  },
+  onUpdateError: (callback: (event: UpdateErrorEvent) => void): (() => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, payload: UpdateErrorEvent): void =>
+      callback(payload)
+    ipcRenderer.on(IPC_CHANNELS.updaterError, listener)
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.updaterError, listener)
+  },
+  startUpdateDownload: (): void => {
+    ipcRenderer.send(IPC_CHANNELS.updaterStartDownload)
+  }
 }
 
 export type CompApi = typeof compApi

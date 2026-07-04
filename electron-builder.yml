@@ -3,6 +3,10 @@ productName: comp
 copyright: Copyright © 2026 jkd
 directories:
   buildResources: build
+publish:
+  provider: github
+  owner: jkagullo
+  repo: comp
 files:
   - '!**/.vscode/*'
   - '!src/*'
