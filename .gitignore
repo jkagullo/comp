@@ -6,3 +6,4 @@ out
 *.log*
 *.tsbuildinfo
 .claude/
+CLAUDE.md

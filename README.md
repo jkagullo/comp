@@ -1,6 +1,8 @@
 # comp
 
-A desktop video compressor for Windows, macOS, and Linux — drop in a video, pick a target size or percentage, and get a smaller file out. Built with Electron, TypeScript, React, and Tailwind CSS.
+A desktop video compressor — drop in a video, pick a target size or percentage, and get a smaller file out. Built with Electron, TypeScript, React, and Tailwind CSS.
+
+Official builds are published for **Windows** and **Linux**. macOS builds are not published: the app isn't code-signed or notarized (that requires a paid Apple Developer account), so an unsigned `.dmg`/`.app` would be blocked or heavily warned on by Gatekeeper. You can still build it from source for macOS at your own risk (see below).
 
 ## Features
 
@@ -64,8 +66,8 @@ npm run typecheck # tsc, main + renderer configs
 
 ```bash
 npm run build:win    # Windows
-npm run build:mac    # macOS
 npm run build:linux  # Linux
+npm run build:mac    # macOS (unsigned, not officially published — see note above)
 ```
 
 ## Contributing
