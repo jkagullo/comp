@@ -4,7 +4,6 @@ import type { CompressionErrorCode } from '@shared/ipcTypes'
 
 const ALL_CODES: readonly CompressionErrorCode[] = [
   'input-stat-failed',
-  'ffmpeg-execution-failed',
   'output-missing',
   'output-not-smaller',
   'invalid-duration',

@@ -1,2 +1,0 @@
-- [comp architecture](project_comp_architecture.md) — electron-vite/React/Tailwind v4 scaffold, IPC/theme/state-machine conventions
-- [Scaffold tooling gotcha](feedback_electron_scaffold_tooling.md) — never pipe `yes` into interactive scaffold CLIs; move conflicting files instead

@@ -29,10 +29,6 @@ interface TrackedJob {
 /** jobId -> in-flight job, so a running job can be looked up and killed by cancelJob(). */
 const activeJobs = new Map<string, TrackedJob>()
 
-export function getActiveJob(jobId: string): TrackedJob | undefined {
-  return activeJobs.get(jobId)
-}
-
 /** Looks up a running job's ffmpeg process and kills it (via `taskkill /t /f` on Windows,
  *  since ffmpeg's process tree there isn't reachable through a plain signal; a direct
  *  SIGKILL on the tracked child process elsewhere), deletes the partial output file, and
@@ -226,8 +222,7 @@ async function cleanupPassLogFiles(passLogPrefix: string): Promise<void> {
 /**
  * Runs a 2-pass ffmpeg encode (analysis pass, then a bitrate-targeted encode pass) as
  * background child processes, streaming combined 0-100 progress via onProgress. Never
- * throws - every failure mode is folded into the returned CompressionResult's 'error'
- * branch, mirroring runSinglePassCompression's style.
+ * throws - every failure mode is folded into the returned CompressionResult's 'error' branch.
  */
 export async function runTwoPassCompression(params: TwoPassParams): Promise<CompressionResult> {
   const { jobId, inputPath, outputPath, targetMB, durationSec, onProgress } = params

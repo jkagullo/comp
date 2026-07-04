@@ -1,4 +1,4 @@
-import { clamp } from './format'
+import { clamp } from '@shared/format'
 
 export function reductionPercent(fromMB: number, toMB: number): number {
   if (fromMB <= 0) return 0

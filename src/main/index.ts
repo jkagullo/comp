@@ -13,7 +13,6 @@ import {
   EXTERNAL_LINKS
 } from '../shared/ipcTypes'
 import icon from '../../resources/icon.png?asset'
-import { getFfmpegVersion } from './ffmpeg'
 import { getVideoMetadata } from './metadata'
 import { runTwoPassCompression, cancelJob } from './compress2pass'
 import { initUpdater, startUpdateDownload } from './updater'
@@ -61,7 +60,7 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: false
+      sandbox: true
     }
   })
 
@@ -182,8 +181,6 @@ function registerIpcHandlers(): void {
     if (key !== 'portfolio' && key !== 'github') return
     shell.openExternal(EXTERNAL_LINKS[key])
   })
-
-  ipcMain.handle(IPC_CHANNELS.ffmpegGetVersion, () => getFfmpegVersion())
 
   ipcMain.handle(
     IPC_CHANNELS.videoGetMetadata,

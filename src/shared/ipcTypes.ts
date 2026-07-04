@@ -33,7 +33,6 @@ export const IPC_CHANNELS = {
   fsPathExists: 'fs:path-exists',
   shellShowItemInFolder: 'shell:show-item-in-folder',
   shellOpenExternalLink: 'shell:open-external-link',
-  ffmpegGetVersion: 'ffmpeg:get-version',
   videoGetMetadata: 'video:get-metadata',
   compressionStartTwoPass: 'compression:start-two-pass',
   compressionProgress: 'compression:progress',
@@ -104,8 +103,7 @@ export type VideoMetadataResult =
   | { readonly kind: 'success'; readonly metadata: VideoMetadata }
   | { readonly kind: 'error'; readonly error: VideoMetadataError }
 
-/** Byte counts before/after a compression run, plus the resolved output path. Shared by
- *  both the single-pass (1.4-T1) and two-pass (2.3-T1) pipelines. */
+/** Byte counts before/after a compression run, plus the resolved output path. */
 export interface CompressionSuccess {
   readonly inputSizeBytes: number
   readonly outputSizeBytes: number
@@ -116,7 +114,6 @@ export interface CompressionSuccess {
  *  future UI can react differently to "couldn't even start" vs. "ran but produced a bad result". */
 export type CompressionErrorCode =
   | 'input-stat-failed' // couldn't stat the input file before running ffmpeg
-  | 'ffmpeg-execution-failed' // binary spawn/non-zero-exit failure (single-pass pipeline)
   | 'output-missing' // ffmpeg exited cleanly but the output file wasn't found
   | 'output-not-smaller' // output exists but is not smaller than the input
   | 'invalid-duration' // durationSec <= 0 or non-finite in a two-pass request

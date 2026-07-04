@@ -1,4 +1,3 @@
-export { bytesToMB, clamp } from '@shared/format'
 import { bytesToMB } from '@shared/format'
 
 const BYTES_PER_MB = 1024 * 1024

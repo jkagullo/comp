@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import { Folder } from 'lucide-react'
 import { Button } from '../components/Button'
 import {
-  bytesToMB,
   basenameWithoutExtension,
   formatDuration,
   formatFileSize,
   formatResolution,
   joinPath
 } from '../utils/format'
+import { bytesToMB } from '@shared/format'
 import { estimateTargetMB, isPercentValid, isTargetSizeValid } from '@shared/compression'
 import { filenameErrorMessage, isFilenameValid } from '@shared/filename'
 import { reductionPercent } from '../utils/compressionEstimate'

@@ -54,7 +54,6 @@ const compApi = {
     ipcRenderer.send(IPC_CHANNELS.shellOpenExternalLink, key)
   },
 
-  getFfmpegVersion: (): Promise<string> => ipcRenderer.invoke(IPC_CHANNELS.ffmpegGetVersion),
   getVideoMetadata: (filePath: string): Promise<VideoMetadataResult> =>
     ipcRenderer.invoke(IPC_CHANNELS.videoGetMetadata, filePath),
   startTwoPassCompression: (request: CompressionStartTwoPassRequest): Promise<CompressionResult> =>

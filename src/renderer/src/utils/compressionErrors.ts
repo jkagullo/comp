@@ -31,12 +31,6 @@ export function describeCompressionError(code: CompressionErrorCode | null): {
         detail:
           'comp could not access the selected video. It may have been moved, renamed, or deleted, or comp may not have permission to read it.'
       }
-    case 'ffmpeg-execution-failed':
-      return {
-        title: 'Compression failed to start',
-        detail:
-          'comp could not run the video-compression tool. Try restarting the app, or try a different file.'
-      }
     case 'output-missing':
       return {
         title: "Couldn't find the compressed file",

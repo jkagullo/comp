@@ -1,7 +1,7 @@
 import { CheckCircle2 } from 'lucide-react'
 import { Button } from '../components/Button'
 import { IconTile } from '../components/IconTile'
-import { bytesToMB } from '../utils/format'
+import { bytesToMB } from '@shared/format'
 import { reductionPercent } from '../utils/compressionEstimate'
 import type { CompressionMode, LoadedVideo, OutputSettings } from '../types'
 
