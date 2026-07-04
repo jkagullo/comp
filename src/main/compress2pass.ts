@@ -33,11 +33,12 @@ export function getActiveJob(jobId: string): TrackedJob | undefined {
   return activeJobs.get(jobId)
 }
 
-/** Looks up a running job's ffmpeg process tree and kills it via `taskkill /t /f` (Windows-only
- *  app), deletes the partial output file, and marks the job cancelled so the in-flight
- *  runFfmpegPass settles with a 'cancelled' result instead of misreporting a pass failure.
- *  A no-op (returns { cancelled: false }) if the job already finished on its own - this is a
- *  benign race, not an error. */
+/** Looks up a running job's ffmpeg process and kills it (via `taskkill /t /f` on Windows,
+ *  since ffmpeg's process tree there isn't reachable through a plain signal; a direct
+ *  SIGKILL on the tracked child process elsewhere), deletes the partial output file, and
+ *  marks the job cancelled so the in-flight runFfmpegPass settles with a 'cancelled' result
+ *  instead of misreporting a pass failure. A no-op (returns { cancelled: false }) if the job
+ *  already finished on its own - this is a benign race, not an error. */
 export async function cancelJob(jobId: string): Promise<{ cancelled: boolean }> {
   const job = activeJobs.get(jobId)
   if (!job) return { cancelled: false }
@@ -46,11 +47,15 @@ export async function cancelJob(jobId: string): Promise<{ cancelled: boolean }> 
 
   const pid = job.currentProcess?.pid
   if (pid !== undefined) {
-    await new Promise<void>((resolve) => {
-      const killer = spawn('taskkill', ['/pid', String(pid), '/t', '/f'])
-      killer.on('exit', () => resolve())
-      killer.on('error', () => resolve())
-    })
+    if (process.platform === 'win32') {
+      await new Promise<void>((resolve) => {
+        const killer = spawn('taskkill', ['/pid', String(pid), '/t', '/f'])
+        killer.on('exit', () => resolve())
+        killer.on('error', () => resolve())
+      })
+    } else {
+      job.currentProcess?.kill('SIGKILL')
+    }
   }
 
   try {

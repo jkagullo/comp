@@ -1,5 +1,5 @@
 import { app, shell, BrowserWindow, ipcMain, dialog, IpcMainInvokeEvent } from 'electron'
-import { join, extname, dirname, parse } from 'path'
+import { join, extname } from 'path'
 import { stat } from 'fs/promises'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import {
@@ -15,7 +15,6 @@ import {
 import icon from '../../resources/icon.png?asset'
 import { getFfmpegVersion } from './ffmpeg'
 import { getVideoMetadata } from './metadata'
-import { runSinglePassCompression } from './compress'
 import { runTwoPassCompression, cancelJob } from './compress2pass'
 
 let mainWindow: BrowserWindow | null = null
@@ -89,6 +88,8 @@ function createWindow(): void {
 }
 
 function registerIpcHandlers(): void {
+  ipcMain.handle(IPC_CHANNELS.appGetVersion, () => app.getVersion())
+
   ipcMain.on(IPC_CHANNELS.windowMinimize, (event) => {
     windowFromEvent(event)?.minimize()
   })
@@ -194,22 +195,6 @@ function registerIpcHandlers(): void {
         })
       }
       return getVideoMetadata(filePath)
-    }
-  )
-
-  ipcMain.handle(
-    IPC_CHANNELS.compressionRunSinglePass,
-    (_event, filePath: unknown): Promise<CompressionResult> => {
-      // Renderer input crossing the IPC boundary is untrusted: validate the shape before touching the filesystem.
-      if (typeof filePath !== 'string' || filePath.length === 0) {
-        return Promise.resolve({
-          kind: 'error',
-          error: { code: 'input-stat-failed', message: 'No file path was provided.' }
-        })
-      }
-      const { name, ext } = parse(filePath)
-      const outputPath = join(dirname(filePath), `${name}_compressed${ext}`)
-      return runSinglePassCompression(filePath, outputPath)
     }
   )
 

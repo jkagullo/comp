@@ -21,6 +21,7 @@ export type SupportedVideoExtension = (typeof SUPPORTED_VIDEO_EXTENSIONS)[number
 
 /** IPC channel names, centralized to avoid typo-prone string literals at call sites. */
 export const IPC_CHANNELS = {
+  appGetVersion: 'app:get-version',
   windowMinimize: 'window:minimize',
   windowMaximizeToggle: 'window:maximize-toggle',
   windowClose: 'window:close',
@@ -34,7 +35,6 @@ export const IPC_CHANNELS = {
   shellOpenExternalLink: 'shell:open-external-link',
   ffmpegGetVersion: 'ffmpeg:get-version',
   videoGetMetadata: 'video:get-metadata',
-  compressionRunSinglePass: 'compression:run-single-pass',
   compressionStartTwoPass: 'compression:start-two-pass',
   compressionProgress: 'compression:progress',
   compressionCancel: 'compression:cancel'

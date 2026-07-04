@@ -16,6 +16,8 @@ import {
  * renderer direct filesystem or process access.
  */
 const compApi = {
+  getAppVersion: (): Promise<string> => ipcRenderer.invoke(IPC_CHANNELS.appGetVersion),
+
   minimizeWindow: (): void => {
     ipcRenderer.send(IPC_CHANNELS.windowMinimize)
   },
@@ -51,8 +53,6 @@ const compApi = {
   getFfmpegVersion: (): Promise<string> => ipcRenderer.invoke(IPC_CHANNELS.ffmpegGetVersion),
   getVideoMetadata: (filePath: string): Promise<VideoMetadataResult> =>
     ipcRenderer.invoke(IPC_CHANNELS.videoGetMetadata, filePath),
-  runSinglePassCompression: (filePath: string): Promise<CompressionResult> =>
-    ipcRenderer.invoke(IPC_CHANNELS.compressionRunSinglePass, filePath),
   startTwoPassCompression: (request: CompressionStartTwoPassRequest): Promise<CompressionResult> =>
     ipcRenderer.invoke(IPC_CHANNELS.compressionStartTwoPass, request),
   onCompressionProgress: (callback: (event: CompressionProgressEvent) => void): (() => void) => {
